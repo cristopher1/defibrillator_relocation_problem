@@ -79,6 +79,10 @@ public:
   unsigned long getCobertura();
 };
 
+int redirigir_descriptor(const int descriptor, const char *nombre_archivo, const int modo);
+
+void restaurar_descriptor(const int descriptor_copiado, const int descriptor_modificado);
+
 /*Carga las coordenadas y los aeds existentes de un archivo de texto.*/
 std::tuple<float, unsigned int, unsigned int, unsigned int, const char *, posicion, posicion, posicion> cargar_datos(const char *nombre_archivo);
 
