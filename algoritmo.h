@@ -110,12 +110,12 @@ float ccc_fijo(const posicion aeds_iniciales, const posicion solucion_candidata)
 float ccc_flexible(const posicion aeds_iniciales, const posicion solucion_candidata);
 
 /*Función de evaluación.*/
-ResultadoFEv f_ev(const std::vector<std::set<coordenadas>> coberturas,
+ResultadoFEv funcion_evaluacion(const std::vector<std::set<coordenadas>> coberturas,
                   const posicion aeds_iniciales,
                   const posicion solucion_candidata,
                   const std::set<coordenadas> eventos_cubiertos,
-                  const unsigned int posicion, const bool agregado,
-                  costo const cost, const unsigned long presupuesto);
+                  const unsigned int posicion_aed, const bool movimiento_realizado,
+                  costo const calcular_costo, const unsigned long presupuesto);
 
 /*Hill climbing con mejor mejora.*/
 ResultadoHCMM hc_mm(std::vector<std::set<coordenadas>> coberturas, posicion aeds_iniciales,

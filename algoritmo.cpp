@@ -204,33 +204,28 @@ std::pair<int, std::set<coordenadas>> cobertura_total_inicial(std::vector<std::s
 std::pair<int, std::set<coordenadas>> cobertura_total(const std::vector<std::set<coordenadas>> coberturas,
                                                       const std::set<coordenadas> eventos_cubiertos,
                                                       const posicion solucion_candidata,
-                                                      const unsigned int posicion_aede,
-                                                      const bool agregado)
+                                                      const unsigned int posicion_aed,
+                                                      const bool movimiento_realizado)
 {
-  std::set<coordenadas> nuevos_eventos_cubiertos = eventos_cubiertos;
+  const bool aed_agregado = movimiento_realizado;
+  std::set<coordenadas> eventos_cubiertos_actuales = eventos_cubiertos;
+
   /*
    * Debido a que el movimiento consiste en quitar o agregar un solo AED a la vez, entonces
    * cuando se agrega un AED en una posición se agrega a la cobertura de OHCA
    * actual los eventos OHCA cubiertos por el AED agregado y en caso de quitar un AED,
-   * se hace diferencia simetrica entre la cobertura de OHCA actual y los
-   * eventos OHCA cubiertos por el AED quitado.
+   * se eliminan del conjunto de cobertura de OHCA, los eventos que el AED cubria.
    */
-
-  if (!agregado)
+  if (aed_agregado)
   {
-    std::set<coordenadas> nuevo;
-    for (unsigned int count; count < solucion_candidata.size(); count++)
-    {
-      if (solucion_candidata[count])
-      {
-        nuevo.insert(coberturas[count].begin(), coberturas[count].end());
-      }
-    }
-    return std::make_pair(nuevo.size(), nuevo);
+    eventos_cubiertos_actuales.insert(coberturas[posicion_aed].begin(), coberturas[posicion_aed].end());
+  }
+  else
+  {
+    eventos_cubiertos_actuales.erase(coberturas[posicion_aed].begin(), coberturas[posicion_aed].end());
   }
 
-  nuevos_eventos_cubiertos.insert(coberturas[posicion_aede].begin(), coberturas[posicion_aede].end());
-  return std::make_pair(nuevos_eventos_cubiertos.size(), nuevos_eventos_cubiertos);
+  return std::make_pair(eventos_cubiertos_actuales.size(), eventos_cubiertos_actuales);
 }
 
 float ccc_fijo(const posicion aeds_iniciales, const posicion solucion_candidata)
@@ -261,17 +256,20 @@ float ccc_flexible(const posicion aeds_iniciales, const posicion solucion_candid
   return aeds_agregados + (0.2 * aeds_movidos);
 }
 
-ResultadoFEv f_ev(const std::vector<std::set<coordenadas>> coberturas, const posicion aeds_iniciales,
-                  const posicion solucion_candidata, const std::set<coordenadas> eventos_cubiertos,
-                  const unsigned int posicion, const bool agregado, costo const cost, const unsigned long presupuesto)
+ResultadoFEv funcion_evaluacion(const std::vector<std::set<coordenadas>> coberturas,
+                                const posicion aeds_iniciales, const posicion solucion_candidata,
+                                const std::set<coordenadas> eventos_cubiertos,
+                                const unsigned int posicion_aed, const bool movimiento_realizado,
+                                costo const calcular_costo, const unsigned long presupuesto)
 {
   float costo;
   unsigned long cobertura;
   std::set<coordenadas> eventos_cubiertos_actuales;
 
-  costo = cost(aeds_iniciales, solucion_candidata);
+  costo = calcular_costo(aeds_iniciales, solucion_candidata);
   std::tie(cobertura, eventos_cubiertos_actuales) = cobertura_total(coberturas, eventos_cubiertos,
-                                                                    solucion_candidata, posicion, agregado);
+                                                                    solucion_candidata, posicion_aed,
+                                                                    movimiento_realizado);
   return ResultadoFEv(costo, cobertura, eventos_cubiertos_actuales);
 }
 
@@ -363,7 +361,7 @@ ResultadoHCMM hc_mm(std::vector<std::set<coordenadas>> coberturas, posicion aeds
   unsigned long mejor_cobertura, mejor_cobertura_actual;
   std::set<coordenadas> mejor_eventos_cubiertos_actual, mejor_eventos_cubiertos;
   posicion mejor_solucion, solucion_candidata;
-  bool aed_agregado, hay_mejor_solucion;
+  bool movimiento_realizado, hay_mejor_solucion;
 
   mejor_costo = calcular_costo(aeds_iniciales, solucion_inicial);
   mejor_costo_actual = mejor_costo;
@@ -377,17 +375,19 @@ ResultadoHCMM hc_mm(std::vector<std::set<coordenadas>> coberturas, posicion aeds
   {
     /*Al inicio del proceso no hay una mejor solución*/
     hay_mejor_solucion = false;
-    for (unsigned int count = 0; count < mejor_solucion.size(); count++)
+    for (unsigned int posicion_aed = 0; posicion_aed < mejor_solucion.size(); posicion_aed++)
     {
       /*
-       * el movimiento consiste en quitar o agregar un aed en una determinada posición de un
-       * evento OHCA.
+       * El movimiento consiste en quitar o agregar un aed en una determinada posición de un
+       * evento OHCA, si no hay un aed (solucion_candidata 0) se agrega 1 (solucion_candidata 1).
+       * En caso contrario, se hace lo opuesto.
        */
-      solucion_candidata[count] = solucion_candidata[count] ? 0 : 1;
-      aed_agregado = solucion_candidata[count];
-      ResultadoFEv calidad = f_ev(coberturas, aeds_iniciales, solucion_candidata,
-                                  mejor_eventos_cubiertos_actual, count, aed_agregado,
-                                  calcular_costo, presupuesto);
+      solucion_candidata[posicion_aed] = solucion_candidata[posicion_aed] ? 0 : 1;
+      movimiento_realizado = solucion_candidata[posicion_aed];
+      ResultadoFEv calidad = funcion_evaluacion(coberturas, aeds_iniciales, solucion_candidata,
+                                               mejor_eventos_cubiertos_actual, posicion_aed,
+                                               movimiento_realizado, calcular_costo,
+                                               presupuesto);
       /*
        * Se van a aceptar soluciones no factibles en caso de que el costo de la mejor solución
        * sea mayor al presupuesto, en caso contrario, solo se encontrarán soluciones factibles.
@@ -421,7 +421,7 @@ ResultadoHCMM hc_mm(std::vector<std::set<coordenadas>> coberturas, posicion aeds
       /*
        * Se aplica nuevamente el movimiento, para que el vector vuelva a su estado original.
        */
-      solucion_candidata[count] = solucion_candidata[count] ? 0 : 1;
+      solucion_candidata[posicion_aed] = solucion_candidata[posicion_aed] ? 0 : 1;
     }
     mejor_costo_actual = mejor_costo;
     mejor_cobertura_actual = mejor_cobertura;
