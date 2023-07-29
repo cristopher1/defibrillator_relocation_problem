@@ -1,29 +1,5 @@
 #include "algoritmo.h"
 
-/*implementacion de los metodos de la clase ResultadoCT*/
-
-ResultadoCT::ResultadoCT()
-{
-  this->cobertura = 0;
-  this->eventosCubiertos = std::set<coordenadas>();
-}
-
-ResultadoCT::ResultadoCT(const unsigned long cobertura, const std::set<coordenadas> eventosCubiertos)
-{
-  this->cobertura = cobertura;
-  this->eventosCubiertos = eventosCubiertos;
-}
-
-unsigned long ResultadoCT::getCobertura()
-{
-  return this->cobertura;
-}
-
-std::set<coordenadas> ResultadoCT::getEventosCubiertos()
-{
-  return this->eventosCubiertos;
-}
-
 /*implementacion de los metodos de la clase ResultadoFEv*/
 
 ResultadoFEv::ResultadoFEv()
@@ -112,7 +88,7 @@ int redirigir_descriptor(const int descriptor, const char *nombre_archivo, const
   /**
    * Este descriptor contiene el contenido del descriptor original (variable descriptor).
    * Usado para restaurar el valor del descriptor original.
-  */
+   */
   return descriptor_copiado;
 }
 
@@ -204,7 +180,8 @@ posicion generar_si_flexible(const int largo, unsigned long presupuesto, unsigne
   return solucion;
 }
 /*Calcula la cobetura total de la solución inicial*/
-ResultadoCT cobertura_total_inicial(std::vector<std::set<coordenadas>> coberturas, posicion solucion_candidata)
+std::pair<int, std::set<coordenadas>> cobertura_total_inicial(std::vector<std::set<coordenadas>> coberturas,
+                                                              posicion solucion_candidata)
 {
   std::set<coordenadas> eventos_cubiertos;
   auto iter_cob = coberturas.begin();
@@ -221,12 +198,14 @@ ResultadoCT cobertura_total_inicial(std::vector<std::set<coordenadas>> cobertura
       eventos_cubiertos.insert((*iter_cob).begin(), (*iter_cob).end());
     }
   }
-  return ResultadoCT(eventos_cubiertos.size(), eventos_cubiertos);
+  return std::make_pair(eventos_cubiertos.size(), eventos_cubiertos);
 }
 
-ResultadoCT cobertura_total(const std::vector<std::set<coordenadas>> coberturas,
-                            const std::set<coordenadas> eventos_cubiertos, const posicion solucion_candidata,
-                            const unsigned int posicion, const bool agregado)
+std::pair<int, std::set<coordenadas>> cobertura_total(const std::vector<std::set<coordenadas>> coberturas,
+                                                      const std::set<coordenadas> eventos_cubiertos,
+                                                      const posicion solucion_candidata,
+                                                      const unsigned int posicion_aede,
+                                                      const bool agregado)
 {
   std::set<coordenadas> nuevos_eventos_cubiertos = eventos_cubiertos;
   /*
@@ -247,11 +226,11 @@ ResultadoCT cobertura_total(const std::vector<std::set<coordenadas>> coberturas,
         nuevo.insert(coberturas[count].begin(), coberturas[count].end());
       }
     }
-    return ResultadoCT(nuevo.size(), nuevo);
+    return std::make_pair(nuevo.size(), nuevo);
   }
 
-  nuevos_eventos_cubiertos.insert(coberturas[posicion].begin(), coberturas[posicion].end());
-  return ResultadoCT(nuevos_eventos_cubiertos.size(), nuevos_eventos_cubiertos);
+  nuevos_eventos_cubiertos.insert(coberturas[posicion_aede].begin(), coberturas[posicion_aede].end());
+  return std::make_pair(nuevos_eventos_cubiertos.size(), nuevos_eventos_cubiertos);
 }
 
 float ccc_fijo(const posicion aeds_iniciales, const posicion solucion_candidata)
@@ -286,10 +265,14 @@ ResultadoFEv f_ev(const std::vector<std::set<coordenadas>> coberturas, const pos
                   const posicion solucion_candidata, const std::set<coordenadas> eventos_cubiertos,
                   const unsigned int posicion, const bool agregado, costo const cost, const unsigned long presupuesto)
 {
-  float costo = cost(aeds_iniciales, solucion_candidata);
-  ResultadoCT cobertura = cobertura_total(coberturas, eventos_cubiertos, solucion_candidata, posicion,
-                                          agregado);
-  return ResultadoFEv(costo, cobertura.getCobertura(), cobertura.getEventosCubiertos());
+  float costo;
+  unsigned long cobertura;
+  std::set<coordenadas> eventos_cubiertos_actuales;
+
+  costo = cost(aeds_iniciales, solucion_candidata);
+  std::tie(cobertura, eventos_cubiertos_actuales) = cobertura_total(coberturas, eventos_cubiertos,
+                                                                    solucion_candidata, posicion, agregado);
+  return ResultadoFEv(costo, cobertura, eventos_cubiertos_actuales);
 }
 
 std::vector<std::set<coordenadas>> obtener_coberturas(const std::vector<unsigned long> coords_x,
@@ -366,7 +349,7 @@ void info_aeds_flexible(const posicion aeds_iniciales, const posicion mejor_solu
 }
 
 ResultadoHCMM hc_mm(std::vector<std::set<coordenadas>> coberturas, posicion aeds_iniciales,
-                    posicion solucion_inicial, const int radio, const float presupuesto, costo cost)
+                    posicion solucion_inicial, const int radio, const float presupuesto, costo calcular_costo)
 {
   /*
    * Variables terminadas en _act sirven para procesar datos de la mejor solución (actual)
@@ -376,17 +359,20 @@ ResultadoHCMM hc_mm(std::vector<std::set<coordenadas>> coberturas, posicion aeds
    * guardar la información asociada a la mejor solución encontrada al realizar la explotación.
    * Variable solucion_candidata representa un vecino.
    */
-  float mejor_costo = cost(aeds_iniciales, solucion_inicial);
-  float mejor_costo_act = mejor_costo;
-  ResultadoCT resultado_cobertura = cobertura_total_inicial(coberturas, solucion_inicial);
-  unsigned long mejor_cobertura = resultado_cobertura.getCobertura();
-  unsigned long mejor_cobertura_act = mejor_cobertura;
-  std::set<coordenadas> mejor_eventos_cubiertos_act = resultado_cobertura.getEventosCubiertos();
-  std::set<coordenadas> mejor_eventos_cubiertos = mejor_eventos_cubiertos_act;
-  posicion mejor_solucion = solucion_inicial;
-  posicion solucion_candidata = mejor_solucion;
-  bool aed_agregado;
-  bool hay_mejor_solucion;
+  float mejor_costo, mejor_costo_actual;
+  unsigned long mejor_cobertura, mejor_cobertura_actual;
+  std::set<coordenadas> mejor_eventos_cubiertos_actual, mejor_eventos_cubiertos;
+  posicion mejor_solucion, solucion_candidata;
+  bool aed_agregado, hay_mejor_solucion;
+
+  mejor_costo = calcular_costo(aeds_iniciales, solucion_inicial);
+  mejor_costo_actual = mejor_costo;
+  std::tie(mejor_cobertura, mejor_eventos_cubiertos_actual) = cobertura_total_inicial(coberturas, solucion_inicial);
+  mejor_cobertura_actual = mejor_cobertura;
+  mejor_eventos_cubiertos = mejor_eventos_cubiertos_actual;
+  mejor_solucion = solucion_inicial;
+  solucion_candidata = mejor_solucion;
+
   do
   {
     /*Al inicio del proceso no hay una mejor solución*/
@@ -400,7 +386,8 @@ ResultadoHCMM hc_mm(std::vector<std::set<coordenadas>> coberturas, posicion aeds
       solucion_candidata[count] = solucion_candidata[count] ? 0 : 1;
       aed_agregado = solucion_candidata[count];
       ResultadoFEv calidad = f_ev(coberturas, aeds_iniciales, solucion_candidata,
-                                  mejor_eventos_cubiertos_act, count, aed_agregado, cost, presupuesto);
+                                  mejor_eventos_cubiertos_actual, count, aed_agregado,
+                                  calcular_costo, presupuesto);
       /*
        * Se van a aceptar soluciones no factibles en caso de que el costo de la mejor solución
        * sea mayor al presupuesto, en caso contrario, solo se encontrarán soluciones factibles.
@@ -415,19 +402,19 @@ ResultadoHCMM hc_mm(std::vector<std::set<coordenadas>> coberturas, posicion aeds
        * que la mejor solución entonces se vuelve mejor solución (solo se aceptan soluciones factibles,
        * se busca aumentar la cobertura manteniendo un costo dentro del presupuesto).
        */
-      float costo_act = calidad.getCosto();
-      unsigned long cobertura_act = calidad.getCobertura();
-      if (((mejor_costo_act > presupuesto) && (costo_act < mejor_costo_act)) ||
-          ((costo_act <= presupuesto) && (cobertura_act > mejor_cobertura_act)))
+      float costo_actual = calidad.getCosto();
+      unsigned long cobertura_actual = calidad.getCobertura();
+      if (((mejor_costo_actual > presupuesto) && (costo_actual < mejor_costo_actual)) ||
+          ((costo_actual <= presupuesto) && (cobertura_actual > mejor_cobertura_actual)))
       {
         mejor_solucion = solucion_candidata;
-        mejor_costo = costo_act;
+        mejor_costo = costo_actual;
         /*
          * Cuando la solución encontrada salga del presupuesto, entonces dicha solución no tendrá
          * cobertura, ya que es una solución no factible, en caso contrario se calcula su cobertura
          * total.
          */
-        mejor_cobertura = mejor_costo > presupuesto ? 0 : cobertura_act;
+        mejor_cobertura = mejor_costo > presupuesto ? 0 : cobertura_actual;
         mejor_eventos_cubiertos = calidad.getEventosCubiertos();
         hay_mejor_solucion = true;
       }
@@ -436,10 +423,10 @@ ResultadoHCMM hc_mm(std::vector<std::set<coordenadas>> coberturas, posicion aeds
        */
       solucion_candidata[count] = solucion_candidata[count] ? 0 : 1;
     }
-    mejor_costo_act = mejor_costo;
-    mejor_cobertura_act = mejor_cobertura;
+    mejor_costo_actual = mejor_costo;
+    mejor_cobertura_actual = mejor_cobertura;
     solucion_candidata = mejor_solucion;
-    mejor_eventos_cubiertos_act = mejor_eventos_cubiertos;
+    mejor_eventos_cubiertos_actual = mejor_eventos_cubiertos;
   } while (hay_mejor_solucion);
 
   return ResultadoHCMM(mejor_solucion, mejor_costo, mejor_cobertura);
