@@ -109,7 +109,10 @@ int redirigir_descriptor(const int descriptor, const char *nombre_archivo, const
     exit(-1);
   }
 
-  // este descriptor contiene el contenido del descriptor original (variable descriptor)
+  /**
+   * Este descriptor contiene el contenido del descriptor original (variable descriptor).
+   * Usado para restaurar el valor del descriptor original.
+  */
   return descriptor_copiado;
 }
 
