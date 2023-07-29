@@ -87,23 +87,54 @@ unsigned long ResultadoHCMM::getCobertura()
   return this->cobertura;
 }
 
-std::tuple<float, unsigned int, unsigned int, unsigned int, const char *, posicion, posicion, posicion> cargar_datos(const char *nombre_archivo)
+/**
+ * Se hace una redirección entre descriptores de archivo. Se usa el nombre del archivo
+ * para obtener un descriptor de dicho archivo. Luego el descriptor original (entregado
+ * en la variable descriptor), es reemplazado por el descriptor de archivo mencionado
+ * anteriormente. ¿Para que se usa?, se puede usar para reemplazar el descriptor
+ * STDIN por el descriptor de archivo obtenido por nombre_archivo, y de esta
+ * manera usar cin para leer el contenido del archivo, en lugar de hacer las operaciones
+ * que se realizan al utilizar open o fopen.
+ */
+int redirigir_descriptor(const int descriptor, const char *nombre_archivo, const int modo)
 {
-  int stdin_descriptor, aed_descriptor;
-  /*abrir y redirigir descriptores de archivos para procesar los datos de los aeds*/
-  if ((stdin_descriptor = dup(STDIN_FILENO)) == -1 ||
-      (aed_descriptor = open(nombre_archivo, O_RDONLY)) == -1 ||
-      dup2(aed_descriptor, STDIN_FILENO) == -1 ||
-      close(aed_descriptor) == -1)
+  int descriptor_copiado, descriptor_nuevo;
+
+  if ((descriptor_copiado = dup(descriptor)) == -1 ||
+      (descriptor_nuevo = open(nombre_archivo, modo)) == -1 ||
+      dup2(descriptor_nuevo, descriptor) == -1 ||
+      close(descriptor_nuevo) == -1)
   {
     perror("Error: ");
     exit(-1);
   }
-  /*cargar los datos*/
+
+  // este descriptor contiene el contenido del descriptor original (variable descriptor)
+  return descriptor_copiado;
+}
+
+/**
+ * Restaura el descriptor de archivo original.
+ */
+void restaurar_descriptor(const int descriptor_copiado, const int descriptor_modificado)
+{
+  /*redirigir el descriptor de entrada para que reciba la entrada estandar*/
+  if (dup2(descriptor_copiado, descriptor_modificado) == -1 || close(descriptor_copiado) == -1)
+  {
+    perror("Error: ");
+    exit(-1);
+  }
+}
+
+std::tuple<float, unsigned int, unsigned int, unsigned int, const char *, posicion, posicion, posicion> cargar_datos(const char *nombre_archivo)
+{
   float presupuesto;
   unsigned int n_eventos, radio, n_aeds_iniciales;
   unsigned long coord_x, coord_y, aed_inicial;
   posicion coords_x, coords_y, aeds_iniciales;
+  int descriptor_original;
+
+  descriptor_original = redirigir_descriptor(STDIN_FILENO, nombre_archivo, O_RDONLY);
 
   std::cin >> n_eventos >> presupuesto >> radio;
   for (unsigned int c = 0; c < n_eventos; c++)
@@ -112,12 +143,8 @@ std::tuple<float, unsigned int, unsigned int, unsigned int, const char *, posici
     coords_x.push_back(coord_x), coords_y.push_back(coord_y), aeds_iniciales.push_back(aed_inicial);
     n_aeds_iniciales += aed_inicial;
   }
-  /*redirigir el descriptor de entrada para que reciba la entrada estandar*/
-  if (dup2(stdin_descriptor, STDIN_FILENO) == -1 || close(stdin_descriptor) == -1)
-  {
-    perror("Error: ");
-    exit(-1);
-  }
+
+  restaurar_descriptor(descriptor_original, STDIN_FILENO);
 
   const char *enfoque = n_aeds_iniciales ? "flexible" : "fijo";
 
@@ -263,7 +290,7 @@ ResultadoFEv f_ev(const std::vector<std::set<coordenadas>> coberturas, const pos
 }
 
 std::vector<std::set<coordenadas>> obtener_coberturas(const std::vector<unsigned long> coords_x,
-                                            const std::vector<unsigned long> coords_y, const unsigned int radio)
+                                                      const std::vector<unsigned long> coords_y, const unsigned int radio)
 {
   std::vector<std::set<coordenadas>> coberturas;
   /*
