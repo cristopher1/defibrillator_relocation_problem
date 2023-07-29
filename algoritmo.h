@@ -31,20 +31,6 @@ typedef posicion (*generar_solucion)(const int largo, unsigned long presupuesto,
 typedef void (*imprimir)(const posicion aeds_iniciales, const posicion mejor_solucion,
                          const posicion coords_x, const posicion coords_y);
 
-/*Representa el resultado de la Cobertura Total*/
-class ResultadoCT
-{
-private:
-  unsigned long cobertura;
-  std::set<coordenadas> eventosCubiertos;
-
-public:
-  ResultadoCT();
-  ResultadoCT(const unsigned long cobertura, const std::set<coordenadas> eventosCubiertos);
-  unsigned long getCobertura();
-  std::set<coordenadas> getEventosCubiertos();
-};
-
 /*Representa el resultado de la Función de Evaluación*/
 class ResultadoFEv
 {
@@ -107,11 +93,11 @@ posicion generar_si_flexible(const int largo, unsigned long presupuesto,
                              unsigned int n_aeds);
 
 /*Permite calcular la cobertura total de los eventos OHCA cubiertos por los AEDs*/
-ResultadoCT cobertura_total_inicial(std::vector<std::set<coordenadas>> coberturas,
+std::pair<int, std::set<coordenadas>> cobertura_total_inicial(std::vector<std::set<coordenadas>> coberturas,
                                     posicion solucion_candidata);
 
 /*Permite calcular la cobertura total de las soluciones candidatas*/
-ResultadoCT cobertura_total(const std::vector<std::set<coordenadas>> coberturas,
+std::pair<int, std::set<coordenadas>> cobertura_total(const std::vector<std::set<coordenadas>> coberturas,
                             const std::set<coordenadas> eventos_cubiertos,
                             const posicion solucion_candidata,
                             const unsigned int posicion, const bool agregado);
@@ -134,7 +120,7 @@ ResultadoFEv f_ev(const std::vector<std::set<coordenadas>> coberturas,
 /*Hill climbing con mejor mejora.*/
 ResultadoHCMM hc_mm(std::vector<std::set<coordenadas>> coberturas, posicion aeds_iniciales,
                     posicion solucion_inicial, const int radio,
-                    const float presupuesto, costo cost);
+                    const float presupuesto, costo calcular_costo);
 
 /*Imprime la información asociada a problemas de tipo fijo*/
 void info_aeds_fijo(const posicion aeds_iniciales, const posicion mejor_solucion,
