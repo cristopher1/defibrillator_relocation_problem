@@ -339,14 +339,17 @@ std::vector<std::set<coordenadas>> obtener_coberturas(const posicion coords_x,
 void imprimir_resultado_enfoque_fijo(const posicion aeds_iniciales, const posicion mejor_solucion,
                                      const posicion coords_x, const posicion coords_y)
 {
-  long n_aeds_agregados = accumulate(mejor_solucion.begin(), mejor_solucion.end(), 0);
-  std::cout << "Cantidad de AEDs agregados: " << n_aeds_agregados << std::endl;
+  long numero_aeds_agregados = accumulate(mejor_solucion.begin(), mejor_solucion.end(), 0);
+  
+  std::cout << "Cantidad de AEDs agregados: " << numero_aeds_agregados << std::endl;
   std::cout << "Posiciones de los AEDs: " << std::endl;
-  for (unsigned int pos = 0; pos < mejor_solucion.size(); ++pos)
+  
+  for (unsigned int ubicacion = 0; ubicacion < mejor_solucion.size(); ++ubicacion)
   {
-    if (mejor_solucion[pos])
+    // Se revisa si hay un aed en dicha ubicación
+    if (mejor_solucion[ubicacion])
     {
-      std::cout << "coordenada X: " << coords_x[pos] << " coordenada Y: " << coords_y[pos] << std::endl;
+      std::cout << "coordenada X: " << coords_x[ubicacion] << " coordenada Y: " << coords_y[ubicacion] << std::endl;
     }
   }
 }
@@ -354,25 +357,30 @@ void imprimir_resultado_enfoque_fijo(const posicion aeds_iniciales, const posici
 void imprimir_resultado_enfoque_flexible(const posicion aeds_iniciales, const posicion mejor_solucion,
                                          const posicion coords_x, const posicion coords_y)
 {
-  long n_aeds_mejor_solucion = accumulate(mejor_solucion.begin(), mejor_solucion.end(), 0);
-  long n_aeds_iniciales = accumulate(aeds_iniciales.begin(), aeds_iniciales.end(), 0);
-  long n_aeds_agregados = n_aeds_mejor_solucion - n_aeds_iniciales;
-  n_aeds_agregados = n_aeds_agregados > 0 ? n_aeds_agregados : 0;
-  long n_aeds_movidos = 0;
-  for (unsigned int pos = 0; pos < aeds_iniciales.size(); ++pos)
+  long numero_aeds_mejor_solucion, numero_aeds_iniciales, numero_aeds_agregados, numero_aeds_movidos;
+
+  numero_aeds_mejor_solucion = accumulate(mejor_solucion.begin(), mejor_solucion.end(), 0);
+  numero_aeds_iniciales = accumulate(aeds_iniciales.begin(), aeds_iniciales.end(), 0);
+  numero_aeds_agregados = numero_aeds_mejor_solucion - numero_aeds_iniciales;
+  numero_aeds_agregados = numero_aeds_agregados > 0 ? numero_aeds_agregados : 0;
+  numero_aeds_movidos = 0;
+
+  for (unsigned int ubicacion = 0; ubicacion < aeds_iniciales.size(); ++ubicacion)
   {
-    if (aeds_iniciales[pos] == 1 && mejor_solucion[pos] == 0)
+    if (aeds_iniciales[ubicacion] == 1 && mejor_solucion[ubicacion] == 0)
     {
-      n_aeds_movidos++;
+      numero_aeds_movidos++;
     }
   }
-  std::cout << "Cantidad de AEDs agregados: " << n_aeds_agregados << std::endl;
-  std::cout << "Cantidad de AEDs movidos: " << n_aeds_movidos << std::endl;
-  for (unsigned int pos = 0; pos < mejor_solucion.size(); ++pos)
+
+  std::cout << "Cantidad de AEDs agregados: " << numero_aeds_agregados << std::endl;
+  std::cout << "Cantidad de AEDs movidos: " << numero_aeds_movidos << std::endl;
+  
+  for (unsigned int ubicacion = 0; pos < mejor_solucion.size(); ++ubicacion)
   {
-    if (mejor_solucion[pos])
+    if (mejor_solucion[ubicacion])
     {
-      std::cout << "coordenada X: " << coords_x[pos] << " coordenada Y: " << coords_y[pos] << std::endl;
+      std::cout << "coordenada X: " << coords_x[ubicacion] << " coordenada Y: " << coords_y[ubicacion] << std::endl;
     }
   }
 }
