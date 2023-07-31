@@ -242,12 +242,12 @@ std::pair<int, std::set<coordenadas>> cobertura_total(const std::vector<std::set
   return std::make_pair(nuevos_eventos_cubiertos.size(), nuevos_eventos_cubiertos);
 }
 
-float ccc_fijo(const posicion aeds_iniciales, const posicion solucion_candidata)
+float calcular_costo_cobertura_enfoque_fijo(const posicion aeds_iniciales, const posicion solucion_candidata)
 {
   return accumulate(solucion_candidata.begin(), solucion_candidata.end(), 0);
 }
 
-float ccc_flexible(const posicion aeds_iniciales, const posicion solucion_candidata)
+float calcular_costo_cobertura_enfoque_flexible(const posicion aeds_iniciales, const posicion solucion_candidata)
 {
   long aeds_movidos = 0;
   long n_aeds_iniciales = accumulate(aeds_iniciales.begin(), aeds_iniciales.end(), 0);
@@ -287,8 +287,8 @@ ResultadoFEv funcion_evaluacion(const std::vector<std::set<coordenadas>> cobertu
   return ResultadoFEv(costo, cobertura, eventos_cubiertos_actuales);
 }
 
-std::vector<std::set<coordenadas>> obtener_coberturas(const std::vector<unsigned long> coords_x,
-                                                      const std::vector<unsigned long> coords_y,
+std::vector<std::set<coordenadas>> obtener_coberturas(const posicion coords_x,
+                                                      const posicion coords_y,
                                                       const unsigned int radio)
 {
   std::vector<std::set<coordenadas>> coberturas;
@@ -320,7 +320,7 @@ std::vector<std::set<coordenadas>> obtener_coberturas(const std::vector<unsigned
   return coberturas;
 }
 
-void info_aeds_fijo(const posicion aeds_iniciales, const posicion mejor_solucion,
+void imprimir_resultado_enfoque_fijo(const posicion aeds_iniciales, const posicion mejor_solucion,
                     const posicion coords_x, const posicion coords_y)
 {
   long n_aeds_agregados = accumulate(mejor_solucion.begin(), mejor_solucion.end(), 0);
@@ -335,7 +335,7 @@ void info_aeds_fijo(const posicion aeds_iniciales, const posicion mejor_solucion
   }
 }
 
-void info_aeds_flexible(const posicion aeds_iniciales, const posicion mejor_solucion,
+void imprimir_resultado_enfoque_flexible(const posicion aeds_iniciales, const posicion mejor_solucion,
                         const posicion coords_x, const posicion coords_y)
 {
   long n_aeds_mejor_solucion = accumulate(mejor_solucion.begin(), mejor_solucion.end(), 0);
@@ -361,8 +361,10 @@ void info_aeds_flexible(const posicion aeds_iniciales, const posicion mejor_solu
   }
 }
 
-ResultadoHCMM hc_mm(std::vector<std::set<coordenadas>> coberturas, posicion aeds_iniciales,
-                    posicion solucion_inicial, const int radio, const float presupuesto, costo calcular_costo)
+ResultadoHCMM hill_climbing_mejor_mejora(std::vector<std::set<coordenadas>> coberturas,
+                                         posicion aeds_iniciales, posicion solucion_inicial,
+                                         const int radio, const float presupuesto,
+                                         costo calcular_costo)
 {
   /*
    * Variables terminadas en _act sirven para procesar datos de la mejor solución (actual)
@@ -450,16 +452,18 @@ ResultadoHCMM hc_mm(std::vector<std::set<coordenadas>> coberturas, posicion aeds
 void resolver(const int n_eventos, const int radio, const float presupuesto,
               const int n_restart, const unsigned int n_aeds_iniciales,
               const posicion aeds_iniciales, const posicion coords_x,
-              const posicion coords_y, costo const cost,
-              generar_solucion const solucion, imprimir const info)
+              const posicion coords_y, costo const calcular_costo,
+              generar_solucion const obtener_solucion_inicial,
+              imprimir const imprimir_resultado)
 {
 
   ResultadoHCMM mejor;
   std::vector<std::set<coordenadas>> coberturas = obtener_coberturas(coords_x, coords_y, radio);
   for (int c = 0; c < n_restart; c++)
   {
-    posicion solucion_inicial = solucion(n_eventos, presupuesto, n_aeds_iniciales);
-    ResultadoHCMM nuevo = hc_mm(coberturas, aeds_iniciales, solucion_inicial, radio, presupuesto, cost);
+    posicion solucion_inicial = obtener_solucion_inicial(n_eventos, presupuesto, n_aeds_iniciales);
+    ResultadoHCMM nuevo = hill_climbing_mejor_mejora(coberturas, aeds_iniciales, solucion_inicial,
+                                                     radio, presupuesto, calcular_costo);
     unsigned long mejor_cobertura = mejor.getCobertura(), nuevo_cobertura = nuevo.getCobertura();
     float mejor_costo = mejor.getCosto(), nuevo_costo = nuevo.getCosto();
     if ((nuevo_cobertura > mejor_cobertura) || ((nuevo_cobertura == mejor_cobertura) && (nuevo_costo < mejor_costo)))
@@ -470,5 +474,5 @@ void resolver(const int n_eventos, const int radio, const float presupuesto,
   std::cout << "Cobertura: " << mejor.getCobertura() << std::endl;
   std::cout << "Porcentaje de cobertura: " << std::fixed << std::setprecision(2) << (mejor.getCobertura() / (float)n_eventos) * 100 << "%" << std::endl;
   std::cout << "Presupuesto sobrante: " << presupuesto - mejor.getCosto() << std::endl;
-  info(aeds_iniciales, mejor.getResultado(), coords_x, coords_y);
+  imprimir_resultado(aeds_iniciales, mejor.getResultado(), coords_x, coords_y);
 }
