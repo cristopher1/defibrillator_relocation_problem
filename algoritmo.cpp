@@ -192,16 +192,17 @@ posicion generar_solucion_inicial_enfoque_flexible(const int largo,
   }
   return solucion;
 }
+
 /*Calcula la cobetura total de la solución inicial*/
-std::pair<int, std::set<coordenadas>> cobertura_total_inicial(std::vector<std::set<coordenadas>> coberturas,
-                                                              posicion solucion_candidata)
+std::pair<int, std::set<coordenadas>> obtener_cobertura_total_inicial(std::vector<std::set<coordenadas>> coberturas,
+                                                                      posicion solucion_candidata)
 {
   std::set<coordenadas> eventos_cubiertos;
-  auto cobertura = coberturas.begin();
-  auto aed = solucion_candidata.begin();
 
-  for (; cobertura != coberturas.end() && aed != solucion_candidata.end();
-       cobertura++, aed++)
+  auto cobertura = coberturas.begin(), ultima_cobertura = coberturas.end();
+  auto aed = solucion_candidata.begin(), ultimo_aed = solucion_candidata.end();
+
+  for (; cobertura != ultima_cobertura && aed != ultimo_aed; ++cobertura, ++aed)
   {
     /*
      * Cada vez que un AED se encuentra cubriendo algún evento OHCA, se obtienen todas las posiciones
@@ -382,7 +383,7 @@ ResultadoHCMM hc_mm(std::vector<std::set<coordenadas>> coberturas, posicion aeds
 
   mejor_costo = calcular_costo(aeds_iniciales, solucion_inicial);
   mejor_costo_actual = mejor_costo;
-  std::tie(mejor_cobertura, mejor_eventos_cubiertos_actual) = cobertura_total_inicial(coberturas, solucion_inicial);
+  std::tie(mejor_cobertura, mejor_eventos_cubiertos_actual) = obtener_cobertura_total_inicial(coberturas, solucion_inicial);
   mejor_cobertura_actual = mejor_cobertura;
   mejor_eventos_cubiertos = mejor_eventos_cubiertos_actual;
   mejor_solucion = solucion_inicial;

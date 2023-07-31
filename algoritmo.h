@@ -93,7 +93,7 @@ posicion generar_solucion_inicial_enfoque_flexible(const int largo, unsigned lon
                              unsigned int n_aeds);
 
 /*Permite calcular la cobertura total de los eventos OHCA cubiertos por los AEDs*/
-std::pair<int, std::set<coordenadas>> cobertura_total_inicial(std::vector<std::set<coordenadas>> coberturas,
+std::pair<int, std::set<coordenadas>> obtener_cobertura_total_inicial(std::vector<std::set<coordenadas>> coberturas,
                                     posicion solucion_candidata);
 
 /*Permite calcular la cobertura total de las soluciones candidatas*/
