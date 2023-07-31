@@ -194,7 +194,7 @@ posicion generar_solucion_inicial_enfoque_flexible(const int largo,
 }
 /*Calcula la cobetura total de la solución inicial*/
 std::pair<int, std::set<coordenadas>> obtener_cobertura_total_inicial(std::vector<std::set<coordenadas>> coberturas,
-                                                              posicion solucion_candidata)
+                                                                      posicion solucion_candidata)
 {
   std::set<coordenadas> eventos_cubiertos;
   auto cobertura = coberturas.begin(), ultima_cobertura = coberturas.end();
@@ -216,10 +216,10 @@ std::pair<int, std::set<coordenadas>> obtener_cobertura_total_inicial(std::vecto
 }
 
 std::pair<int, std::set<coordenadas>> obtener_cobertura_total(const std::vector<std::set<coordenadas>> coberturas,
-                                                      const std::set<coordenadas> eventos_cubiertos,
-                                                      const posicion solucion_candidata,
-                                                      const unsigned int posicion_aed,
-                                                      const bool movimiento_realizado)
+                                                              const std::set<coordenadas> eventos_cubiertos,
+                                                              const posicion solucion_candidata,
+                                                              const unsigned int posicion_aed,
+                                                              const bool movimiento_realizado)
 {
   const bool aed_agregado = movimiento_realizado;
   std::set<coordenadas> nuevos_eventos_cubiertos = eventos_cubiertos;
@@ -252,19 +252,25 @@ float calcular_costo_cobertura_enfoque_fijo(const posicion aeds_iniciales, const
 
 float calcular_costo_cobertura_enfoque_flexible(const posicion aeds_iniciales, const posicion solucion_candidata)
 {
-  long aeds_movidos = 0;
-  long n_aeds_iniciales = accumulate(aeds_iniciales.begin(), aeds_iniciales.end(), 0);
-  long n_aeds_sol_candidata = accumulate(solucion_candidata.begin(), solucion_candidata.end(), 0);
-  long aeds_agregados = n_aeds_sol_candidata - n_aeds_iniciales;
+  long numero_aeds_iniciales, numero_aeds_solucion_candidata, aeds_agregados, aeds_movidos;
+
+  numero_aeds_iniciales = accumulate(aeds_iniciales.begin(), aeds_iniciales.end(), 0);
+  numero_aeds_solucion_candidata = accumulate(solucion_candidata.begin(), solucion_candidata.end(), 0);
+  aeds_agregados = numero_aeds_solucion_candidata - numero_aeds_iniciales;
   aeds_agregados = aeds_agregados > 0 ? aeds_agregados : 0;
-  for (auto iter_ini = aeds_iniciales.begin(), iter_sol = solucion_candidata.begin();
-       iter_ini != aeds_iniciales.end() && iter_sol != solucion_candidata.end(); iter_ini++, iter_sol++)
+  aeds_movidos = 0;
+
+  for (auto aed_inicial = aeds_iniciales.begin(), ultimo_aed_inicial = aeds_iniciales.end(),
+            aed_solucion_candidata = solucion_candidata.begin(),
+            ultimo_aed_solucion_candidata = solucion_candidata.end();
+       aed_inicial != ultimo_aed_inicial && aed_solucion_candidata != ultimo_aed_solucion_candidata;
+       ++aed_inicial, ++aed_solucion_candidata)
   {
     /*
      * Si un aed estaba inicialmente en una ubicación pero en la solución candidata no aparece
      * en dicha posición, entonces el aed se ha movido.
      */
-    if ((*iter_ini) == 1 && (*iter_sol) == 0)
+    if ((*aed_inicial) && !(*aed_solucion_candidata))
     {
       aeds_movidos++;
     }
@@ -285,8 +291,8 @@ ResultadoFEv funcion_evaluacion(const std::vector<std::set<coordenadas>> cobertu
 
   costo = calcular_costo(aeds_iniciales, solucion_candidata);
   std::tie(cobertura, eventos_cubiertos_actuales) = obtener_cobertura_total(coberturas, eventos_cubiertos,
-                                                                    solucion_candidata, posicion_aed,
-                                                                    movimiento_realizado);
+                                                                            solucion_candidata, posicion_aed,
+                                                                            movimiento_realizado);
   return ResultadoFEv(costo, cobertura, eventos_cubiertos_actuales);
 }
 
@@ -325,7 +331,7 @@ std::vector<std::set<coordenadas>> obtener_coberturas(const posicion coords_x,
     {
 
       unsigned long distancia_entre_eventos = sqrt(pow(*coord_x_evento_actual - *coord_x_otro_evento, 2) +
-                                                 pow(*coord_y_evento_actual - *coord_y_otro_evento, 2));
+                                                   pow(*coord_y_evento_actual - *coord_y_otro_evento, 2));
       if (distancia_entre_eventos <= radio)
       {
         eventos_cubiertos.insert(std::make_pair(*coord_x_otro_evento, *coord_y_otro_evento));
@@ -340,10 +346,10 @@ void imprimir_resultado_enfoque_fijo(const posicion aeds_iniciales, const posici
                                      const posicion coords_x, const posicion coords_y)
 {
   long numero_aeds_agregados = accumulate(mejor_solucion.begin(), mejor_solucion.end(), 0);
-  
+
   std::cout << "Cantidad de AEDs agregados: " << numero_aeds_agregados << std::endl;
   std::cout << "Posiciones de los AEDs: " << std::endl;
-  
+
   for (unsigned int ubicacion = 0; ubicacion < mejor_solucion.size(); ++ubicacion)
   {
     // Se revisa si hay un aed en dicha ubicación
@@ -368,18 +374,18 @@ void imprimir_resultado_enfoque_flexible(const posicion aeds_iniciales, const po
   for (unsigned int ubicacion = 0; ubicacion < aeds_iniciales.size(); ++ubicacion)
   {
     /*
-     * Si hay un AED ( == 1) en aeds_iniciales, pero no hay AED ( == 0) en mejor_solucion
+     * Si hay un AED en aeds_iniciales, pero no hay AED en mejor_solucion
      * entonces ese AED se ha sido movido.
-    */
-    if (aeds_iniciales[ubicacion] == 1 && mejor_solucion[ubicacion] == 0)
+     */
+    if (aeds_iniciales[ubicacion] && !mejor_solucion[ubicacion])
     {
-      numero_aeds_movidos++;
+      ++numero_aeds_movidos;
     }
   }
 
   std::cout << "Cantidad de AEDs agregados: " << numero_aeds_agregados << std::endl;
   std::cout << "Cantidad de AEDs movidos: " << numero_aeds_movidos << std::endl;
-  
+
   for (unsigned int ubicacion = 0; ubicacion < mejor_solucion.size(); ++ubicacion)
   {
     if (mejor_solucion[ubicacion])
