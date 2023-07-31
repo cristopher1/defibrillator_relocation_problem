@@ -198,10 +198,7 @@ std::pair<int, std::set<coordenadas>> obtener_cobertura_total_inicial(std::vecto
                                                                       posicion solucion_candidata)
 {
   std::set<coordenadas> eventos_cubiertos;
-<<<<<<< HEAD
 
-=======
->>>>>>> refactoring
   auto cobertura = coberturas.begin(), ultima_cobertura = coberturas.end();
   auto aed = solucion_candidata.begin(), ultimo_aed = solucion_candidata.end();
 
