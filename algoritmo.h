@@ -32,41 +32,7 @@ typedef posicion (*generar_solucion)(const int largo, unsigned long presupuesto,
 typedef void (*imprimir)(const posicion aeds_iniciales, const posicion mejor_solucion,
                          const posicion coords_x, const posicion coords_y);
 
-/*Representa el resultado de la Función de Evaluación*/
-class ResultadoFEv
-{
-private:
-  float costo;
-  unsigned long cobertura;
-  std::set<coordenadas> eventosCubiertos;
-
-public:
-  ResultadoFEv();
-  ResultadoFEv(const float costo, const unsigned long cobertura,
-               const std::set<coordenadas> eventosCubiertos);
-  float getCosto();
-  unsigned long getCobertura();
-  std::set<coordenadas> getEventosCubiertos();
-};
-
-/*Representa el resultado de Hill Climbing con Mejor Mejora*/
-class ResultadoHCMM
-{
-private:
-  posicion resultado;
-  float costo;
-  unsigned long cobertura;
-
-public:
-  ResultadoHCMM();
-  ResultadoHCMM(const posicion resultado, const float costo,
-                const unsigned long cobertura);
-  posicion getResultado();
-  float getCosto();
-  unsigned long getCobertura();
-};
-
-int redirigir_descriptor(const int descriptor, const char * const nombre_archivo, const int modo);
+int redirigir_descriptor(const int descriptor, const char *const nombre_archivo, const int modo);
 
 void restaurar_descriptor(const int descriptor_copiado, const int descriptor_modificado);
 
@@ -97,37 +63,39 @@ posicion generar_solucion_inicial_enfoque_flexible(const int largo, unsigned lon
 
 /*Permite calcular la cobertura total de los eventos OHCA cubiertos por los AEDs*/
 std::pair<int, std::set<coordenadas>> cobertura_total_inicial(std::vector<std::set<coordenadas>> coberturas,
-                                    posicion solucion_candidata);
+                                                              posicion solucion_candidata);
 
 /*Permite calcular la cobertura total de las soluciones candidatas*/
 std::pair<int, std::set<coordenadas>> obtener_cobertura_total(const std::vector<std::set<coordenadas>> coberturas,
-                                                      const std::set<coordenadas> eventos_cubiertos,
-                                                      const posicion solucion_candidata,
-                                                      const unsigned int posicion,
-                                                      const bool movimiento_realizado);
+                                                              const std::set<coordenadas> eventos_cubiertos,
+                                                              const posicion solucion_candidata,
+                                                              const unsigned int posicion,
+                                                              const bool movimiento_realizado);
 
 float calcular_costo_cobertura_enfoque_fijo(const posicion aeds_iniciales, const posicion solucion_candidata);
 
 float calcular_costo_cobertura_enfoque_flexible(const posicion aeds_iniciales, const posicion solucion_candidata);
 
 /*Función de evaluación.*/
-ResultadoFEv funcion_evaluacion(const std::vector<std::set<coordenadas>> coberturas,
-                                const posicion aeds_iniciales,
-                                const posicion solucion_candidata,
-                                const std::set<coordenadas> eventos_cubiertos,
-                                const unsigned int posicion_aed, const bool movimiento_realizado,
-                                costo const calcular_costo, const unsigned long presupuesto);
+std::tuple<float, unsigned long, std::set<coordenadas>>
+funcion_evaluacion(const std::vector<std::set<coordenadas>> coberturas,
+                   const posicion aeds_iniciales,
+                   const posicion solucion_candidata,
+                   const std::set<coordenadas> eventos_cubiertos,
+                   const unsigned int posicion_aed, const bool movimiento_realizado,
+                   costo const calcular_costo, const unsigned long presupuesto);
 
 /*Hill climbing con mejor mejora.*/
-ResultadoHCMM hill_climbing_mejor_mejora(std::vector<std::set<coordenadas>> coberturas, posicion aeds_iniciales,
-                    posicion solucion_inicial, const int radio,
-                    const float presupuesto, costo const calcular_costo);
+std::tuple<posicion, float, unsigned long>
+hill_climbing_mejor_mejora(std::vector<std::set<coordenadas>> coberturas, posicion aeds_iniciales,
+                           posicion solucion_inicial, const int radio,
+                           const float presupuesto, costo const calcular_costo);
 
 void imprimir_resultado_enfoque_fijo(const posicion aeds_iniciales, const posicion mejor_solucion,
-                    const posicion coords_x, const posicion coords_y);
+                                     const posicion coords_x, const posicion coords_y);
 
 void imprimir_resultado_enfoque_flexible(const posicion aeds_iniciales, const posicion mejor_solucion,
-                        const posicion coords_x, const posicion coords_y);
+                                         const posicion coords_x, const posicion coords_y);
 
 /*Función utilizada para resolver el problema con los diferentes enfoques.*/
 void resolver(const int n_eventos, const int radio, const float presupuesto,

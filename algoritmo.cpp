@@ -1,68 +1,5 @@
 #include "algoritmo.h"
 
-/*implementacion de los metodos de la clase ResultadoFEv*/
-
-ResultadoFEv::ResultadoFEv()
-{
-  this->costo = 0.0;
-  this->cobertura = 0;
-  this->eventosCubiertos = std::set<coordenadas>();
-}
-
-ResultadoFEv::ResultadoFEv(const float costo, const unsigned long cobertura,
-                           const std::set<coordenadas> eventosCubiertos)
-{
-  this->costo = costo;
-  this->cobertura = cobertura;
-  this->eventosCubiertos = eventosCubiertos;
-}
-
-float ResultadoFEv::getCosto()
-{
-  return this->costo;
-}
-
-unsigned long ResultadoFEv::getCobertura()
-{
-  return this->cobertura;
-}
-
-std::set<coordenadas> ResultadoFEv::getEventosCubiertos()
-{
-  return this->eventosCubiertos;
-}
-
-/*implementacion de los metodos de la clase ResultadoHCMM*/
-
-ResultadoHCMM::ResultadoHCMM()
-{
-  this->resultado = posicion();
-  this->costo = 0.0;
-  this->cobertura = 0;
-}
-
-ResultadoHCMM::ResultadoHCMM(const posicion resultado, const float costo, const unsigned long cobertura)
-{
-  this->resultado = resultado;
-  this->costo = costo;
-  this->cobertura = cobertura;
-}
-
-posicion ResultadoHCMM::getResultado()
-{
-  return this->resultado;
-}
-
-float ResultadoHCMM::getCosto()
-{
-  return this->costo;
-}
-
-unsigned long ResultadoHCMM::getCobertura()
-{
-  return this->cobertura;
-}
-
 /**
  * Se hace una redirección entre descriptores de archivo. Se usa el nombre del archivo
  * para obtener un descriptor de dicho archivo. Luego el descriptor original (entregado
@@ -281,11 +218,12 @@ float calcular_costo_cobertura_enfoque_flexible(const posicion aeds_iniciales, c
   return aeds_agregados + (0.2 * aeds_movidos);
 }
 
-ResultadoFEv funcion_evaluacion(const std::vector<std::set<coordenadas>> coberturas,
-                                const posicion aeds_iniciales, const posicion solucion_candidata,
-                                const std::set<coordenadas> eventos_cubiertos,
-                                const unsigned int posicion_aed, const bool movimiento_realizado,
-                                costo const calcular_costo, const unsigned long presupuesto)
+std::tuple<float, unsigned long, std::set<coordenadas>>
+funcion_evaluacion(const std::vector<std::set<coordenadas>> coberturas,
+                   const posicion aeds_iniciales, const posicion solucion_candidata,
+                   const std::set<coordenadas> eventos_cubiertos,
+                   const unsigned int posicion_aed, const bool movimiento_realizado,
+                   costo const calcular_costo, const unsigned long presupuesto)
 {
   float costo;
   unsigned long cobertura;
@@ -295,7 +233,7 @@ ResultadoFEv funcion_evaluacion(const std::vector<std::set<coordenadas>> cobertu
   std::tie(cobertura, eventos_cubiertos_actuales) = obtener_cobertura_total(coberturas, eventos_cubiertos,
                                                                             solucion_candidata, posicion_aed,
                                                                             movimiento_realizado);
-  return ResultadoFEv(costo, cobertura, eventos_cubiertos_actuales);
+  return std::make_tuple(costo, cobertura, eventos_cubiertos_actuales);
 }
 
 /*
@@ -399,10 +337,11 @@ void imprimir_resultado_enfoque_flexible(const posicion aeds_iniciales, const po
   }
 }
 
-ResultadoHCMM hill_climbing_mejor_mejora(std::vector<std::set<coordenadas>> coberturas,
-                                         posicion aeds_iniciales, posicion solucion_inicial,
-                                         const int radio, const float presupuesto,
-                                         costo const calcular_costo)
+std::tuple<posicion, float, unsigned long>
+hill_climbing_mejor_mejora(std::vector<std::set<coordenadas>> coberturas,
+                           posicion aeds_iniciales, posicion solucion_inicial,
+                           const int radio, const float presupuesto,
+                           costo const calcular_costo)
 {
   /*
    * Variables terminadas en _act sirven para procesar datos de la mejor solución (actual)
@@ -437,28 +376,32 @@ ResultadoHCMM hill_climbing_mejor_mejora(std::vector<std::set<coordenadas>> cobe
        * evento OHCA, si no hay un aed (solucion_candidata 0) se agrega 1 (solucion_candidata 1).
        * En caso contrario, se hace lo opuesto.
        */
+
+      float costo_actual;
+      unsigned long cobertura_actual;
+      std::set<coordenadas> eventos_cubiertos;
+
       solucion_candidata[posicion_aed] = solucion_candidata[posicion_aed] ? 0 : 1;
       movimiento_realizado = solucion_candidata[posicion_aed];
-      ResultadoFEv calidad = funcion_evaluacion(coberturas, aeds_iniciales, solucion_candidata,
-                                                mejor_eventos_cubiertos_actual, posicion_aed,
-                                                movimiento_realizado, calcular_costo,
-                                                presupuesto);
+      std::tie(costo_actual, cobertura_actual, eventos_cubiertos) = funcion_evaluacion(coberturas, aeds_iniciales, solucion_candidata,
+                                                                                       mejor_eventos_cubiertos_actual, posicion_aed,
+                                                                                       movimiento_realizado, calcular_costo,
+                                                                                       presupuesto);
       /*
        * Se van a aceptar soluciones no factibles en caso de que el costo de la mejor solución
        * sea mayor al presupuesto, en caso contrario, solo se encontrarán soluciones factibles.
        * Por lo tanto se tienen los siguientes dos casos para considerar una solución como mejor:
        *
        * 1. Si el costo de la mejor solución es mayor al presupuesto y el costo de la nueva solución
-       * es menor al costo de la mejor solución entonces se considera la nueva solución como
+       * es menor al costo de la mejor solución, entonces se considera la nueva solución como
        * mejor solución (en este caso se aceptan soluciones factibles y no factibles, se busca bajar
        * el costo de las soluciones para que calcen con el presupuesto).
        *
        * 2. Si el costo de la nueva solución es menor o igual al presupuesto y tiene mejor cobertura
-       * que la mejor solución entonces se vuelve mejor solución (solo se aceptan soluciones factibles,
+       * que la mejor solución, entonces se vuelve mejor solución (solo se aceptan soluciones factibles,
        * se busca aumentar la cobertura manteniendo un costo dentro del presupuesto).
        */
-      float costo_actual = calidad.getCosto();
-      unsigned long cobertura_actual = calidad.getCobertura();
+
       if (((mejor_costo_actual > presupuesto) && (costo_actual < mejor_costo_actual)) ||
           ((costo_actual <= presupuesto) && (cobertura_actual > mejor_cobertura_actual)))
       {
@@ -470,7 +413,7 @@ ResultadoHCMM hill_climbing_mejor_mejora(std::vector<std::set<coordenadas>> cobe
          * total.
          */
         mejor_cobertura = mejor_costo > presupuesto ? 0 : cobertura_actual;
-        mejor_eventos_cubiertos = calidad.getEventosCubiertos();
+        mejor_eventos_cubiertos = eventos_cubiertos;
         hay_mejor_solucion = true;
       }
       /*
@@ -484,7 +427,7 @@ ResultadoHCMM hill_climbing_mejor_mejora(std::vector<std::set<coordenadas>> cobe
     mejor_eventos_cubiertos_actual = mejor_eventos_cubiertos;
   } while (hay_mejor_solucion);
 
-  return ResultadoHCMM(mejor_solucion, mejor_costo, mejor_cobertura);
+  return std::make_tuple(mejor_solucion, mejor_costo, mejor_cobertura);
 }
 
 void resolver(const int n_eventos, const int radio, const float presupuesto,
@@ -494,23 +437,31 @@ void resolver(const int n_eventos, const int radio, const float presupuesto,
               generar_solucion const obtener_solucion_inicial,
               imprimir const imprimir_resultado)
 {
+  posicion mejor_solucion, nueva_solucion;
+  float mejor_costo, nuevo_costo;
+  unsigned long mejor_cobertura, nueva_cobertura;
 
-  ResultadoHCMM mejor;
+  mejor_costo = 0.0;
+  mejor_cobertura = 0;
+
   std::vector<std::set<coordenadas>> coberturas = obtener_coberturas(coords_x, coords_y, radio);
-  for (int c = 0; c < n_restart; ++c)
+
+  for (int restart = 0; restart < n_restart; ++restart)
   {
     posicion solucion_inicial = obtener_solucion_inicial(n_eventos, presupuesto, n_aeds_iniciales);
-    ResultadoHCMM nuevo = hill_climbing_mejor_mejora(coberturas, aeds_iniciales, solucion_inicial,
-                                                     radio, presupuesto, calcular_costo);
-    unsigned long mejor_cobertura = mejor.getCobertura(), nuevo_cobertura = nuevo.getCobertura();
-    float mejor_costo = mejor.getCosto(), nuevo_costo = nuevo.getCosto();
-    if ((nuevo_cobertura > mejor_cobertura) || ((nuevo_cobertura == mejor_cobertura) && (nuevo_costo < mejor_costo)))
+    std::tie(nueva_solucion, nuevo_costo, nueva_cobertura) =
+        hill_climbing_mejor_mejora(coberturas, aeds_iniciales, solucion_inicial, radio, presupuesto, calcular_costo);
+
+    if ((nueva_cobertura > mejor_cobertura) || ((nueva_cobertura == mejor_cobertura) && (nuevo_costo < mejor_costo)))
     {
-      mejor = nuevo;
+      mejor_solucion = nueva_solucion;
+      mejor_costo = nuevo_costo;
+      mejor_cobertura = nueva_cobertura;
     }
   }
-  std::cout << "Cobertura: " << mejor.getCobertura() << std::endl;
-  std::cout << "Porcentaje de cobertura: " << std::fixed << std::setprecision(2) << (mejor.getCobertura() / (float)n_eventos) * 100 << "%" << std::endl;
-  std::cout << "Presupuesto sobrante: " << presupuesto - mejor.getCosto() << std::endl;
-  imprimir_resultado(aeds_iniciales, mejor.getResultado(), coords_x, coords_y);
+  std::cout << "Cobertura: " << mejor_cobertura << std::endl;
+  std::cout << "Porcentaje de cobertura: " << std::fixed << std::setprecision(2)
+            << (mejor_cobertura / (float)n_eventos) * 100 << "%" << std::endl;
+  std::cout << "Presupuesto sobrante: " << presupuesto - mejor_costo << std::endl;
+  imprimir_resultado(aeds_iniciales, mejor_solucion, coords_x, coords_y);
 }
