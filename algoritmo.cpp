@@ -72,7 +72,7 @@ unsigned long ResultadoHCMM::getCobertura()
  * manera usar cin para leer el contenido del archivo, en lugar de hacer las operaciones
  * que se realizan al utilizar open o fopen.
  */
-int redirigir_descriptor(const int descriptor, const char *nombre_archivo, const int modo)
+int redirigir_descriptor(const int descriptor, const char * const nombre_archivo, const int modo)
 {
   int descriptor_copiado, descriptor_nuevo;
 
@@ -223,6 +223,8 @@ std::pair<int, std::set<coordenadas>> cobertura_total(const std::vector<std::set
 {
   const bool aed_agregado = movimiento_realizado;
   std::set<coordenadas> nuevos_eventos_cubiertos = eventos_cubiertos;
+  std::set<coordenadas> cobertura_aed = coberturas[posicion_aed];
+
   /*
    * Debido a que el movimiento consiste en quitar o agregar un solo AED a la vez, entonces
    * cuando se agrega un AED en una posición, se agrega a la cobertura de OHCA
@@ -232,11 +234,10 @@ std::pair<int, std::set<coordenadas>> cobertura_total(const std::vector<std::set
 
   if (aed_agregado)
   {
-    nuevos_eventos_cubiertos.insert(coberturas[posicion_aed].begin(), ++coberturas[posicion_aed].end());
+    nuevos_eventos_cubiertos.insert(cobertura_aed.begin(), ++cobertura_aed.end());
     return std::make_pair(nuevos_eventos_cubiertos.size(), nuevos_eventos_cubiertos);
   }
-
-  const std::set<coordenadas> cobertura_aed = coberturas[posicion_aed];
+  
   for (auto evento = cobertura_aed.begin(), ultimo_evento = cobertura_aed.end(); evento != ultimo_evento; ++evento)
   {
     nuevos_eventos_cubiertos.erase(*evento);
@@ -366,7 +367,7 @@ void imprimir_resultado_enfoque_flexible(const posicion aeds_iniciales, const po
 ResultadoHCMM hill_climbing_mejor_mejora(std::vector<std::set<coordenadas>> coberturas,
                                          posicion aeds_iniciales, posicion solucion_inicial,
                                          const int radio, const float presupuesto,
-                                         costo calcular_costo)
+                                         costo const calcular_costo)
 {
   /*
    * Variables terminadas en _act sirven para procesar datos de la mejor solución (actual)

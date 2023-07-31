@@ -66,7 +66,7 @@ public:
   unsigned long getCobertura();
 };
 
-int redirigir_descriptor(const int descriptor, const char *nombre_archivo, const int modo);
+int redirigir_descriptor(const int descriptor, const char * const nombre_archivo, const int modo);
 
 void restaurar_descriptor(const int descriptor_copiado, const int descriptor_modificado);
 
@@ -121,7 +121,7 @@ ResultadoFEv funcion_evaluacion(const std::vector<std::set<coordenadas>> cobertu
 /*Hill climbing con mejor mejora.*/
 ResultadoHCMM hill_climbing_mejor_mejora(std::vector<std::set<coordenadas>> coberturas, posicion aeds_iniciales,
                     posicion solucion_inicial, const int radio,
-                    const float presupuesto, costo calcular_costo);
+                    const float presupuesto, costo const calcular_costo);
 
 void imprimir_resultado_enfoque_fijo(const posicion aeds_iniciales, const posicion mejor_solucion,
                     const posicion coords_x, const posicion coords_y);
