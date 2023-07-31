@@ -197,8 +197,10 @@ std::pair<int, std::set<coordenadas>> cobertura_total_inicial(std::vector<std::s
                                                               posicion solucion_candidata)
 {
   std::set<coordenadas> eventos_cubiertos;
-  for (auto cobertura = coberturas.begin(), auto aed = solucion_candidata.begin();
-       cobertura != coberturas.end() && aed != solucion_candidata.end();
+  auto cobertura = coberturas.begin();
+  auto aed = solucion_candidata.begin();
+
+  for (; cobertura != coberturas.end() && aed != solucion_candidata.end();
        cobertura++, aed++)
   {
     /*
