@@ -380,7 +380,7 @@ void imprimir_resultado_enfoque_flexible(const posicion aeds_iniciales, const po
   std::cout << "Cantidad de AEDs agregados: " << numero_aeds_agregados << std::endl;
   std::cout << "Cantidad de AEDs movidos: " << numero_aeds_movidos << std::endl;
   
-  for (unsigned int ubicacion = 0; pos < mejor_solucion.size(); ++ubicacion)
+  for (unsigned int ubicacion = 0; ubicacion < mejor_solucion.size(); ++ubicacion)
   {
     if (mejor_solucion[ubicacion])
     {
