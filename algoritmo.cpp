@@ -72,7 +72,7 @@ unsigned long ResultadoHCMM::getCobertura()
  * manera usar cin para leer el contenido del archivo, en lugar de hacer las operaciones
  * que se realizan al utilizar open o fopen.
  */
-int redirigir_descriptor(const int descriptor, const char * const nombre_archivo, const int modo)
+int redirigir_descriptor(const int descriptor, const char *const nombre_archivo, const int modo)
 {
   int descriptor_copiado, descriptor_nuevo;
 
@@ -237,7 +237,7 @@ std::pair<int, std::set<coordenadas>> cobertura_total(const std::vector<std::set
     nuevos_eventos_cubiertos.insert(cobertura_aed.begin(), ++cobertura_aed.end());
     return std::make_pair(nuevos_eventos_cubiertos.size(), nuevos_eventos_cubiertos);
   }
-  
+
   for (auto evento = cobertura_aed.begin(), ultimo_evento = cobertura_aed.end(); evento != ultimo_evento; ++evento)
   {
     nuevos_eventos_cubiertos.erase(*evento);
@@ -290,35 +290,48 @@ ResultadoFEv funcion_evaluacion(const std::vector<std::set<coordenadas>> cobertu
   return ResultadoFEv(costo, cobertura, eventos_cubiertos_actuales);
 }
 
+/*
+ * Genera un vector, donde cada posición representa una determinada ubicación de un
+ * evento OHCA y en cada una de esas posiciones se almacena el conjunto de todas aquellas
+ * ubicaciones de eventos OHCAs que se encuentran a una distancia radio de él. De esta
+ * manera, es posible almacenar la cobertura de un punto de OHCA y realizando uniones
+ * entre los conjuntos de OHCA de cada posición del vector se puede obtener la cobertura
+ * total de las soluciones entregadas por HC con MM.
+ */
 std::vector<std::set<coordenadas>> obtener_coberturas(const posicion coords_x,
                                                       const posicion coords_y,
                                                       const unsigned int radio)
 {
   std::vector<std::set<coordenadas>> coberturas;
-  /*
-   * Se genera un vector, donde cada posición representa una determinada ubicación de un
-   * evento OHCA y en cada una de esas posiciones se almacena el conjunto de todas aquellas
-   * ubicaciones de eventos OHCAs que se encuentran a una distancia radio de él. De esta
-   * manera, es posible almacenar la cobertura de un punto de OHCA y realizando uniones
-   * entre los conjuntos de OHCA de cada posición del vector se puede obtener la cobertura
-   * total de las soluciones entregadas por HC con MM.
-   */
-  for (auto iter_x_act = coords_x.begin(), iter_y_act = coords_y.begin();
-       iter_x_act != coords_x.end() && iter_y_act != coords_y.end(); iter_x_act++, iter_y_act++)
+
+  for (auto coord_x_evento_actual = coords_x.begin(), ultima_coord_x_evento_actual = coords_x.end(),
+            coord_y_evento_actual = coords_y.begin(), ultima_coord_y_evento_actual = coords_y.end();
+       coord_x_evento_actual != ultima_coord_x_evento_actual &&
+       coord_y_evento_actual != ultima_coord_y_evento_actual;
+       ++coord_x_evento_actual, ++coord_y_evento_actual)
   {
 
-    std::set<coordenadas> cobertura;
-    for (auto iter_x_sig = coords_x.begin(), iter_y_sig = coords_y.begin();
-         iter_x_sig != coords_x.end() && iter_y_sig != coords_y.end(); iter_x_sig++, iter_y_sig++)
+    /*
+     * Eventos OHCA dentro del mismo radio de covertura. Si se coloca un AED en este sitio,
+     * puede cubrir todos los eventos OHCA dentro de este conjunto.
+     */
+    std::set<coordenadas> eventos_cubiertos;
+
+    for (auto coord_x_otro_evento = coords_x.begin(), ultima_coord_x_otro_evento = coords_x.end(),
+              coord_y_otro_evento = coords_y.begin(), ultima_coord_y_otro_evento = coord_y.end();
+         coord_x_otro_evento != ultima_coord_x_otro_evento &&
+         coord_y_otro_evento != ultima_coord_y_otro_evento;
+         ++coord_x_otro_evento, ++coord_y_otro_evento)
     {
 
-      unsigned int radio_act = sqrt(pow(*iter_x_act - *iter_x_sig, 2) + pow(*iter_y_act - *iter_y_sig, 2));
-      if (radio_act <= radio)
+      unsigned int distacia_entre_eventos = sqrt(pow(*coord_x_evento_actual - *coord_x_otro_evento, 2) +
+                                                 pow(*coord_y_evento_actual - *coord_y_otro_evento, 2));
+      if (distancia_entre_eventos <= radio)
       {
-        cobertura.insert(std::make_pair(*iter_x_sig, *iter_y_sig));
+        cobertura.insert(std::make_pair(*coord_x_otro_evento, *coord_y_otro_evento));
       }
     }
-    coberturas.push_back(cobertura);
+    coberturas.push_back(eventos_cubiertos);
   }
   return coberturas;
 }
