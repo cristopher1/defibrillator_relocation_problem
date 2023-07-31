@@ -29,29 +29,29 @@ do
        /usr/bin/time -f "Tiempo de ejecución: %e [s]" ./proyecto ./DRP-INSTANCIAS/SJC-DRP/SJC324-3.txt $n_restart $semilla &> ./RESULTADOS/DRP-INSTANCIAS/SJC-DRP/SJC324-3/SJC324-3-$n_restart-$semilla.txt
        echo -e "Terminado\n"
 
-       echo -e "Ejecutando proyecto con parametros nombre_archivo: ./DRP-INSTANCIAS/SJC-DRP/SJC402-3.txt número_restart: $n_restart semilla: $semilla"
-       /usr/bin/time -f "Tiempo de ejecución: %e [s]" ./proyecto ./DRP-INSTANCIAS/SJC-DRP/SJC402-3.txt $n_restart $semilla &> ./RESULTADOS/DRP-INSTANCIAS/SJC-DRP/SJC402-3/SJC402-3-$n_restart-$semilla.txt
-       echo -e "Terminado\n"
+#       echo -e "Ejecutando proyecto con parametros nombre_archivo: ./DRP-INSTANCIAS/SJC-DRP/SJC402-3.txt número_restart: $n_restart semilla: $semilla"
+#       /usr/bin/time -f "Tiempo de ejecución: %e [s]" ./proyecto ./DRP-INSTANCIAS/SJC-DRP/SJC402-3.txt $n_restart $semilla &> ./RESULTADOS/DRP-INSTANCIAS/SJC-DRP/SJC402-3/SJC402-3-$n_restart-$semilla.txt
+#       echo -e "Terminado\n"
 
-       echo -e "Ejecutando proyecto con parametros nombre_archivo: ./DRP-INSTANCIAS/SJC-DRP/SJC500-3.txt número_restart: $n_restart semilla: $semilla"
-       /usr/bin/time -f "Tiempo de ejecución: %e [s]" ./proyecto ./DRP-INSTANCIAS/SJC-DRP/SJC500-3.txt $n_restart $semilla &> ./RESULTADOS/DRP-INSTANCIAS/SJC-DRP/SJC500-3/SJC500-3-$n_restart-$semilla.txt
-       echo -e "Terminado\n"
+#       echo -e "Ejecutando proyecto con parametros nombre_archivo: ./DRP-INSTANCIAS/SJC-DRP/SJC500-3.txt número_restart: $n_restart semilla: $semilla"
+#       /usr/bin/time -f "Tiempo de ejecución: %e [s]" ./proyecto ./DRP-INSTANCIAS/SJC-DRP/SJC500-3.txt $n_restart $semilla &> ./RESULTADOS/DRP-INSTANCIAS/SJC-DRP/SJC500-3/SJC500-3-$n_restart-$semilla.txt
+#       echo -e "Terminado\n"
 
-       echo -e "Ejecutando proyecto con parametros nombre_archivo: ./DRP-INSTANCIAS/SJC-DRP/SJC500-7.txt número_restart: $n_restart semilla: $semilla"
-       /usr/bin/time -f "Tiempo de ejecución: %e [s]" ./proyecto ./DRP-INSTANCIAS/SJC-DRP/SJC500-7.txt $n_restart $semilla &> ./RESULTADOS/DRP-INSTANCIAS/SJC-DRP/SJC500-7/SJC500-7-$n_restart-$semilla.txt
-       echo -e "Terminado\n"
+#       echo -e "Ejecutando proyecto con parametros nombre_archivo: ./DRP-INSTANCIAS/SJC-DRP/SJC500-7.txt número_restart: $n_restart semilla: $semilla"
+#       /usr/bin/time -f "Tiempo de ejecución: %e [s]" ./proyecto ./DRP-INSTANCIAS/SJC-DRP/SJC500-7.txt $n_restart $semilla &> ./RESULTADOS/DRP-INSTANCIAS/SJC-DRP/SJC500-7/SJC500-7-$n_restart-$semilla.txt
+#       echo -e "Terminado\n"
 
-       echo -e "Ejecutando proyecto con parametros nombre_archivo: ./DRP-INSTANCIAS/SJC-DRP/SJC708-5.txt número_restart: $n_restart semilla: $semilla"
-       /usr/bin/time -f "Tiempo de ejecución: %e [s]" ./proyecto ./DRP-INSTANCIAS/SJC-DRP/SJC708-5.txt $n_restart $semilla &> ./RESULTADOS/DRP-INSTANCIAS/SJC-DRP/SJC708-5/SJC708-5-$n_restart-$semilla.txt
-       echo -e "Terminado\n"
+#       echo -e "Ejecutando proyecto con parametros nombre_archivo: ./DRP-INSTANCIAS/SJC-DRP/SJC708-5.txt número_restart: $n_restart semilla: $semilla"
+#       /usr/bin/time -f "Tiempo de ejecución: %e [s]" ./proyecto ./DRP-INSTANCIAS/SJC-DRP/SJC708-5.txt $n_restart $semilla &> ./RESULTADOS/DRP-INSTANCIAS/SJC-DRP/SJC708-5/SJC708-5-$n_restart-$semilla.txt
+#       echo -e "Terminado\n"
 
-       echo -e "Ejecutando proyecto con parametros nombre_archivo: ./DRP-INSTANCIAS/SJC-DRP/SJC708-7.txt número_restart: $n_restart semilla: $semilla"
-       /usr/bin/time -f "Tiempo de ejecución: %e [s]" ./proyecto ./DRP-INSTANCIAS/SJC-DRP/SJC708-7.txt $n_restart $semilla &> ./RESULTADOS/DRP-INSTANCIAS/SJC-DRP/SJC708-7/SJC708-7-$n_restart-$semilla.txt
-       echo -e "Terminado\n"
+#       echo -e "Ejecutando proyecto con parametros nombre_archivo: ./DRP-INSTANCIAS/SJC-DRP/SJC708-7.txt número_restart: $n_restart semilla: $semilla"
+#       /usr/bin/time -f "Tiempo de ejecución: %e [s]" ./proyecto ./DRP-INSTANCIAS/SJC-DRP/SJC708-7.txt $n_restart $semilla &> ./RESULTADOS/DRP-INSTANCIAS/SJC-DRP/SJC708-7/SJC708-7-$n_restart-$semilla.txt
+#       echo -e "Terminado\n"
 
-       echo -e "Ejecutando proyecto con parametros nombre_archivo: ./DRP-INSTANCIAS/SJC-DRP/SJC708-11.txt número_restart: $n_restart semilla: $semilla"
-       /usr/bin/time -f "Tiempo de ejecución: %e [s]" ./proyecto ./DRP-INSTANCIAS/SJC-DRP/SJC708-11.txt $n_restart $semilla &> ./RESULTADOS/DRP-INSTANCIAS/SJC-DRP/SJC708-11/SJC708-11-$n_restart-$semilla.txt
-       echo -e "Terminado\n"
+#       echo -e "Ejecutando proyecto con parametros nombre_archivo: ./DRP-INSTANCIAS/SJC-DRP/SJC708-11.txt número_restart: $n_restart semilla: $semilla"
+#       /usr/bin/time -f "Tiempo de ejecución: %e [s]" ./proyecto ./DRP-INSTANCIAS/SJC-DRP/SJC708-11.txt $n_restart $semilla &> ./RESULTADOS/DRP-INSTANCIAS/SJC-DRP/SJC708-11/SJC708-11-$n_restart-$semilla.txt
+#       echo -e "Terminado\n"
 
        echo -e "Utilizando instancias de problema flexible\n"
 
@@ -59,29 +59,29 @@ do
        /usr/bin/time -f "Tiempo de ejecución: %e [s]" ./proyecto ./DRP-INSTANCIAS/SJC-DRP-AEDs/SJC324-3.txt $n_restart $semilla &> ./RESULTADOS/DRP-INSTANCIAS/SJC-DRP-AEDs/SJC324-3/SJC324-3-$n_restart-$semilla.txt
        echo -e "Terminado\n"
 
-       echo -e "Ejecutando proyecto con parametros nombre_archivo: ./DRP-INSTANCIAS/SJC-DRP-AEDs/SJC402-3.txt número_restart: $n_restart semilla: $semilla"
-       /usr/bin/time -f "Tiempo de ejecución: %e [s]" ./proyecto ./DRP-INSTANCIAS/SJC-DRP-AEDs/SJC402-3.txt $n_restart $semilla &> ./RESULTADOS/DRP-INSTANCIAS/SJC-DRP-AEDs/SJC402-3/SJC402-3-$n_restart-$semilla.txt
-       echo -e "Terminado\n"
+#       echo -e "Ejecutando proyecto con parametros nombre_archivo: ./DRP-INSTANCIAS/SJC-DRP-AEDs/SJC402-3.txt número_restart: $n_restart semilla: $semilla"
+#       /usr/bin/time -f "Tiempo de ejecución: %e [s]" ./proyecto ./DRP-INSTANCIAS/SJC-DRP-AEDs/SJC402-3.txt $n_restart $semilla &> ./RESULTADOS/DRP-INSTANCIAS/SJC-DRP-AEDs/SJC402-3/SJC402-3-$n_restart-$semilla.txt
+#       echo -e "Terminado\n"
 
-       echo -e "Ejecutando proyecto con parametros nombre_archivo: ./DRP-INSTANCIAS/SJC-DRP-AEDs/SJC500-3.txt número_restart: $n_restart semilla: $semilla"
-       /usr/bin/time -f "Tiempo de ejecución: %e [s]" ./proyecto ./DRP-INSTANCIAS/SJC-DRP-AEDs/SJC500-3.txt $n_restart $semilla &> ./RESULTADOS/DRP-INSTANCIAS/SJC-DRP-AEDs/SJC500-3/SJC500-3-$n_restart-$semilla.txt
-       echo -e "Terminado\n"
+#       echo -e "Ejecutando proyecto con parametros nombre_archivo: ./DRP-INSTANCIAS/SJC-DRP-AEDs/SJC500-3.txt número_restart: $n_restart semilla: $semilla"
+#       /usr/bin/time -f "Tiempo de ejecución: %e [s]" ./proyecto ./DRP-INSTANCIAS/SJC-DRP-AEDs/SJC500-3.txt $n_restart $semilla &> ./RESULTADOS/DRP-INSTANCIAS/SJC-DRP-AEDs/SJC500-3/SJC500-3-$n_restart-$semilla.txt
+#       echo -e "Terminado\n"
 
-       echo -e "Ejecutando proyecto con parametros nombre_archivo: ./DRP-INSTANCIAS/SJC-DRP-AEDs/SJC500-7.txt número_restart: $n_restart semilla: $semilla"
-       /usr/bin/time -f "Tiempo de ejecución: %e [s]" ./proyecto ./DRP-INSTANCIAS/SJC-DRP-AEDs/SJC500-7.txt $n_restart $semilla &> ./RESULTADOS/DRP-INSTANCIAS/SJC-DRP-AEDs/SJC500-7/SJC500-7-$n_restart-$semilla.txt
-       echo -e "Terminado\n"
+#       echo -e "Ejecutando proyecto con parametros nombre_archivo: ./DRP-INSTANCIAS/SJC-DRP-AEDs/SJC500-7.txt número_restart: $n_restart semilla: $semilla"
+#       /usr/bin/time -f "Tiempo de ejecución: %e [s]" ./proyecto ./DRP-INSTANCIAS/SJC-DRP-AEDs/SJC500-7.txt $n_restart $semilla &> ./RESULTADOS/DRP-INSTANCIAS/SJC-DRP-AEDs/SJC500-7/SJC500-7-$n_restart-$semilla.txt
+#       echo -e "Terminado\n"
 
-       echo -e "Ejecutando proyecto con parametros nombre_archivo: ./DRP-INSTANCIAS/SJC-DRP-AEDs/SJC708-5.txt número_restart: $n_restart semilla: $semilla"
-       /usr/bin/time -f "Tiempo de ejecución: %e [s]" ./proyecto ./DRP-INSTANCIAS/SJC-DRP-AEDs/SJC708-5.txt $n_restart $semilla &> ./RESULTADOS/DRP-INSTANCIAS/SJC-DRP-AEDs/SJC708-5/SJC708-5-$n_restart-$semilla.txt
-       echo -e "Terminado\n"
+#       echo -e "Ejecutando proyecto con parametros nombre_archivo: ./DRP-INSTANCIAS/SJC-DRP-AEDs/SJC708-5.txt número_restart: $n_restart semilla: $semilla"
+#       /usr/bin/time -f "Tiempo de ejecución: %e [s]" ./proyecto ./DRP-INSTANCIAS/SJC-DRP-AEDs/SJC708-5.txt $n_restart $semilla &> ./RESULTADOS/DRP-INSTANCIAS/SJC-DRP-AEDs/SJC708-5/SJC708-5-$n_restart-$semilla.txt
+#       echo -e "Terminado\n"
 
-       echo -e "Ejecutando proyecto con parametros nombre_archivo: ./DRP-INSTANCIAS/SJC-DRP-AEDs/SJC708-7.txt número_restart: $n_restart semilla: $semilla"
-       /usr/bin/time -f "Tiempo de ejecución: %e [s]" ./proyecto ./DRP-INSTANCIAS/SJC-DRP-AEDs/SJC708-7.txt $n_restart $semilla &> ./RESULTADOS/DRP-INSTANCIAS/SJC-DRP-AEDs/SJC708-7/SJC708-7-$n_restart-$semilla.txt
-       echo -e "Terminado\n"
+#       echo -e "Ejecutando proyecto con parametros nombre_archivo: ./DRP-INSTANCIAS/SJC-DRP-AEDs/SJC708-7.txt número_restart: $n_restart semilla: $semilla"
+#       /usr/bin/time -f "Tiempo de ejecución: %e [s]" ./proyecto ./DRP-INSTANCIAS/SJC-DRP-AEDs/SJC708-7.txt $n_restart $semilla &> ./RESULTADOS/DRP-INSTANCIAS/SJC-DRP-AEDs/SJC708-7/SJC708-7-$n_restart-$semilla.txt
+#       echo -e "Terminado\n"
 
-       echo -e "Ejecutando proyecto con parametros nombre_archivo: ./DRP-INSTANCIAS/SJC-DRP-AEDs/SJC708-11.txt número_restart: $n_restart semilla: $semilla"
-       /usr/bin/time -f "Tiempo de ejecución: %e [s]" ./proyecto ./DRP-INSTANCIAS/SJC-DRP-AEDs/SJC708-11.txt $n_restart $semilla &> ./RESULTADOS/DRP-INSTANCIAS/SJC-DRP-AEDs/SJC708-11/SJC708-11-$n_restart-$semilla.txt
-       echo -e "Terminado\n"
+#       echo -e "Ejecutando proyecto con parametros nombre_archivo: ./DRP-INSTANCIAS/SJC-DRP-AEDs/SJC708-11.txt número_restart: $n_restart semilla: $semilla"
+#       /usr/bin/time -f "Tiempo de ejecución: %e [s]" ./proyecto ./DRP-INSTANCIAS/SJC-DRP-AEDs/SJC708-11.txt $n_restart $semilla &> ./RESULTADOS/DRP-INSTANCIAS/SJC-DRP-AEDs/SJC708-11/SJC708-11-$n_restart-$semilla.txt
+#       echo -e "Terminado\n"
 
     done
 done
