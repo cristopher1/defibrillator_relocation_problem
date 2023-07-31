@@ -118,7 +118,7 @@ cargar_datos(const char *nombre_archivo)
   descriptor_original = redirigir_descriptor(STDIN_FILENO, nombre_archivo, O_RDONLY);
 
   std::cin >> n_eventos >> presupuesto >> radio;
-  for (unsigned int c = 0; c < n_eventos; c++)
+  for (unsigned int c = 0; c < n_eventos; ++c)
   {
     std::cin >> coord_x >> coord_y >> aed_inicial;
     coords_x.push_back(coord_x), coords_y.push_back(coord_y), aeds_iniciales.push_back(aed_inicial);
@@ -151,7 +151,7 @@ posicion generar_solucion_inicial_enfoque_fijo(const int largo,
    * la cantidad de presupuesto con el cual se cuenta.
    */
   presupuesto = presupuesto * (1 + ((rand() % 4) / 10));
-  for (auto iter = solucion.begin(); iter != solucion.end() && presupuesto > 0; iter++)
+  for (auto iter = solucion.begin(); iter != solucion.end() && presupuesto > 0; ++iter)
   {
     /*
      * Se genera un 0 o 1 de forma aleatoria, que indica si existe o no un aed y se agrega
@@ -177,7 +177,7 @@ posicion generar_solucion_inicial_enfoque_flexible(const int largo,
    * en las ubicaciones de OHCA dadas. Debido a que existe una cantidad inicial de AEDs que se
    * deben colocar en la solución, se decide aumentar la probabilidad de generar 1's.
    */
-  for (auto iter = solucion.begin(); iter != solucion.end() && n_aeds > 0; iter++)
+  for (auto iter = solucion.begin(); iter != solucion.end() && n_aeds > 0; ++iter)
   {
     /*
      * Se genera un 0 o 1 de forma aleatoria, que indica si existe o no un aed y se agrega
@@ -197,9 +197,10 @@ std::pair<int, std::set<coordenadas>> cobertura_total_inicial(std::vector<std::s
                                                               posicion solucion_candidata)
 {
   std::set<coordenadas> eventos_cubiertos;
-  for (auto cobertura = coberturas.begin(), auto aed = solucion_candidata.begin();
-       cobertura != coberturas.end() && aed != solucion_candidata.end();
-       cobertura++, aed++)
+  auto cobertura = coberturas.begin();
+  auto aed = solucion_candidata.begin();
+
+  for (; cobertura != coberturas.end() && aed != solucion_candidata.end(); ++cobertura, ++aed)
   {
     /*
      * Cada vez que un AED se encuentra cubriendo algún evento OHCA, se obtienen todas las posiciones
@@ -235,7 +236,7 @@ std::pair<int, std::set<coordenadas>> cobertura_total(const std::vector<std::set
     return std::make_pair(nuevos_eventos_cubiertos.size(), nuevos_eventos_cubiertos);
   }
 
-  for (auto evento = coberturas[posicion_aed].begin(); evento != coberturas[posicion_aed].end(); evento++)
+  for (auto evento = coberturas[posicion_aed].begin(); evento != coberturas[posicion_aed].end(); ++evento)
   {
     nuevos_eventos_cubiertos.erase(*evento);
   }
@@ -321,12 +322,12 @@ std::vector<std::set<coordenadas>> obtener_coberturas(const posicion coords_x,
 }
 
 void imprimir_resultado_enfoque_fijo(const posicion aeds_iniciales, const posicion mejor_solucion,
-                    const posicion coords_x, const posicion coords_y)
+                                     const posicion coords_x, const posicion coords_y)
 {
   long n_aeds_agregados = accumulate(mejor_solucion.begin(), mejor_solucion.end(), 0);
   std::cout << "Cantidad de AEDs agregados: " << n_aeds_agregados << std::endl;
   std::cout << "Posiciones de los AEDs: " << std::endl;
-  for (unsigned int pos = 0; pos < mejor_solucion.size(); pos++)
+  for (unsigned int pos = 0; pos < mejor_solucion.size(); ++pos)
   {
     if (mejor_solucion[pos])
     {
@@ -336,14 +337,14 @@ void imprimir_resultado_enfoque_fijo(const posicion aeds_iniciales, const posici
 }
 
 void imprimir_resultado_enfoque_flexible(const posicion aeds_iniciales, const posicion mejor_solucion,
-                        const posicion coords_x, const posicion coords_y)
+                                         const posicion coords_x, const posicion coords_y)
 {
   long n_aeds_mejor_solucion = accumulate(mejor_solucion.begin(), mejor_solucion.end(), 0);
   long n_aeds_iniciales = accumulate(aeds_iniciales.begin(), aeds_iniciales.end(), 0);
   long n_aeds_agregados = n_aeds_mejor_solucion - n_aeds_iniciales;
   n_aeds_agregados = n_aeds_agregados > 0 ? n_aeds_agregados : 0;
   long n_aeds_movidos = 0;
-  for (unsigned int pos = 0; pos < aeds_iniciales.size(); pos++)
+  for (unsigned int pos = 0; pos < aeds_iniciales.size(); ++pos)
   {
     if (aeds_iniciales[pos] == 1 && mejor_solucion[pos] == 0)
     {
@@ -352,7 +353,7 @@ void imprimir_resultado_enfoque_flexible(const posicion aeds_iniciales, const po
   }
   std::cout << "Cantidad de AEDs agregados: " << n_aeds_agregados << std::endl;
   std::cout << "Cantidad de AEDs movidos: " << n_aeds_movidos << std::endl;
-  for (unsigned int pos = 0; pos < mejor_solucion.size(); pos++)
+  for (unsigned int pos = 0; pos < mejor_solucion.size(); ++pos)
   {
     if (mejor_solucion[pos])
     {
@@ -392,7 +393,7 @@ ResultadoHCMM hill_climbing_mejor_mejora(std::vector<std::set<coordenadas>> cobe
   {
     /*Al inicio del proceso no hay una mejor solución*/
     hay_mejor_solucion = false;
-    for (unsigned int posicion_aed = 0; posicion_aed < mejor_solucion.size(); posicion_aed++)
+    for (unsigned int posicion_aed = 0; posicion_aed < mejor_solucion.size(); ++posicion_aed)
     {
       /*
        * El movimiento consiste en quitar o agregar un aed en una determinada posición de un
@@ -459,7 +460,7 @@ void resolver(const int n_eventos, const int radio, const float presupuesto,
 
   ResultadoHCMM mejor;
   std::vector<std::set<coordenadas>> coberturas = obtener_coberturas(coords_x, coords_y, radio);
-  for (int c = 0; c < n_restart; c++)
+  for (int c = 0; c < n_restart; ++c)
   {
     posicion solucion_inicial = obtener_solucion_inicial(n_eventos, presupuesto, n_aeds_iniciales);
     ResultadoHCMM nuevo = hill_climbing_mejor_mejora(coberturas, aeds_iniciales, solucion_inicial,

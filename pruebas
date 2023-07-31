@@ -55,9 +55,9 @@ do
 
 #       echo -e "Utilizando instancias de problema flexible\n"
 
-       #echo -e "Ejecutando proyecto con parametros nombre_archivo: ./DRP-INSTANCIAS/SJC-DRP-AEDs/SJC324-3.txt número_restart: $n_restart semilla: $semilla"
-       #/usr/bin/time -f "Tiempo de ejecución: %e [s]" ./proyecto ./DRP-INSTANCIAS/SJC-DRP-AEDs/SJC324-3.txt $n_restart $semilla &> ./RESULTADOS/DRP-INSTANCIAS/SJC-DRP-AEDs/SJC324-3/SJC324-3-$n_restart-$semilla.txt
-       #echo -e "Terminado\n"
+#       echo -e "Ejecutando proyecto con parametros nombre_archivo: ./DRP-INSTANCIAS/SJC-DRP-AEDs/SJC324-3.txt número_restart: $n_restart semilla: $semilla"
+#       /usr/bin/time -f "Tiempo de ejecución: %e [s]" ./proyecto ./DRP-INSTANCIAS/SJC-DRP-AEDs/SJC324-3.txt $n_restart $semilla &> ./RESULTADOS/DRP-INSTANCIAS/SJC-DRP-AEDs/SJC324-3/SJC324-3-$n_restart-$semilla.txt
+#       echo -e "Terminado\n"
 
 #       echo -e "Ejecutando proyecto con parametros nombre_archivo: ./DRP-INSTANCIAS/SJC-DRP-AEDs/SJC402-3.txt número_restart: $n_restart semilla: $semilla"
 #       /usr/bin/time -f "Tiempo de ejecución: %e [s]" ./proyecto ./DRP-INSTANCIAS/SJC-DRP-AEDs/SJC402-3.txt $n_restart $semilla &> ./RESULTADOS/DRP-INSTANCIAS/SJC-DRP-AEDs/SJC402-3/SJC402-3-$n_restart-$semilla.txt
