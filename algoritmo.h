@@ -32,23 +32,6 @@ typedef posicion (*generar_solucion)(const int largo, unsigned long presupuesto,
 typedef void (*imprimir)(const posicion aeds_iniciales, const posicion mejor_solucion,
                          const posicion coords_x, const posicion coords_y);
 
-/*Representa el resultado de Hill Climbing con Mejor Mejora*/
-class ResultadoHCMM
-{
-private:
-  posicion resultado;
-  float costo;
-  unsigned long cobertura;
-
-public:
-  ResultadoHCMM();
-  ResultadoHCMM(const posicion resultado, const float costo,
-                const unsigned long cobertura);
-  posicion getResultado();
-  float getCosto();
-  unsigned long getCobertura();
-};
-
 int redirigir_descriptor(const int descriptor, const char *const nombre_archivo, const int modo);
 
 void restaurar_descriptor(const int descriptor_copiado, const int descriptor_modificado);
@@ -103,9 +86,10 @@ funcion_evaluacion(const std::vector<std::set<coordenadas>> coberturas,
                    costo const calcular_costo, const unsigned long presupuesto);
 
 /*Hill climbing con mejor mejora.*/
-ResultadoHCMM hill_climbing_mejor_mejora(std::vector<std::set<coordenadas>> coberturas, posicion aeds_iniciales,
-                                         posicion solucion_inicial, const int radio,
-                                         const float presupuesto, costo const calcular_costo);
+std::tuple<posicion, float, unsigned long>
+hill_climbing_mejor_mejora(std::vector<std::set<coordenadas>> coberturas, posicion aeds_iniciales,
+                           posicion solucion_inicial, const int radio,
+                           const float presupuesto, costo const calcular_costo);
 
 void imprimir_resultado_enfoque_fijo(const posicion aeds_iniciales, const posicion mejor_solucion,
                                      const posicion coords_x, const posicion coords_y);
