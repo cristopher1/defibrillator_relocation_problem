@@ -161,7 +161,7 @@ posicion generar_solucion_inicial_enfoque_fijo(const int largo,
     if (hay_aed)
     {
       *aed = 1;
-      presupuesto--;
+      --presupuesto;
     }
   }
   return solucion;
@@ -187,7 +187,7 @@ posicion generar_solucion_inicial_enfoque_flexible(const int largo,
     if (hay_aed)
     {
       *aed = 1;
-      n_aeds--;
+      --n_aeds;
     }
   }
   return solucion;
