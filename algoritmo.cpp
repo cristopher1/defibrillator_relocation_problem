@@ -105,7 +105,9 @@ void restaurar_descriptor(const int descriptor_copiado, const int descriptor_mod
   }
 }
 
-std::tuple<float, unsigned int, unsigned int, unsigned int, const char *, posicion, posicion, posicion> cargar_datos(const char *nombre_archivo)
+std::tuple<float, unsigned int, unsigned int, unsigned int, const char *,
+           posicion, posicion, posicion>
+cargar_datos(const char *nombre_archivo)
 {
   float presupuesto;
   unsigned int n_eventos, radio, n_aeds_iniciales;
@@ -136,8 +138,10 @@ void establecer_semilla(long semilla)
   srand(semilla);
 }
 
-posicion generar_si_fijo(const int largo, unsigned long presupuesto, unsigned int n_aeds)
+posicion generar_solucion_inicial_enfoque_fijo(const int largo,
+                                               unsigned long presupuesto, unsigned int n_aeds)
 {
+  // Solución inicial, al comienzo no tiene aeds.
   posicion solucion(largo, 0);
   /*
    * Se genera una solución inicial con una cantidad de AEDs que varia desde presupuesto hasta
@@ -149,7 +153,10 @@ posicion generar_si_fijo(const int largo, unsigned long presupuesto, unsigned in
   presupuesto = presupuesto * (1 + ((rand() % 4) / 10));
   for (auto iter = solucion.begin(); iter != solucion.end() && presupuesto > 0; iter++)
   {
-    /*Se genera un 0 o 1 de forma aleatoria, que indica si existe o no un aed.*/
+    /*
+     * Se genera un 0 o 1 de forma aleatoria, que indica si existe o no un aed y se agrega
+     * a la solución inicial.
+     */
     unsigned long hay_aed = ((rand() % 101) / 100) >= 0.9;
     if (hay_aed)
     {
@@ -160,8 +167,10 @@ posicion generar_si_fijo(const int largo, unsigned long presupuesto, unsigned in
   return solucion;
 }
 
-posicion generar_si_flexible(const int largo, unsigned long presupuesto, unsigned int n_aeds)
+posicion generar_solucion_inicial_enfoque_flexible(const int largo,
+                                                   unsigned long presupuesto, unsigned int n_aeds)
 {
+  // Solución inicial, al comienzo no tiene aeds.
   posicion solucion(largo, 0);
   /*
    * Se genera una solución inicial con la cantidad de aeds que se encuentran ubicados inicialmente
@@ -170,6 +179,10 @@ posicion generar_si_flexible(const int largo, unsigned long presupuesto, unsigne
    */
   for (auto iter = solucion.begin(); iter != solucion.end() && n_aeds > 0; iter++)
   {
+    /*
+     * Se genera un 0 o 1 de forma aleatoria, que indica si existe o no un aed y se agrega
+     * a la solución inicial.
+     */
     unsigned long hay_aed = ((rand() % 101) / 100) >= 0.7;
     if (hay_aed)
     {

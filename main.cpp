@@ -28,13 +28,15 @@ int main(int argc, char *argv[])
   establecer_semilla(semilla);
   if (strcmp(enfoque, "fijo") == 0)
   {
-    resolver(n_eventos, radio, presupuesto, n_restart, n_aeds_iniciales, aeds_iniciales,
-             coords_x, coords_y, ccc_fijo, generar_si_fijo, info_aeds_fijo);
+    resolver(n_eventos, radio, presupuesto, n_restart, n_aeds_iniciales,
+             aeds_iniciales, coords_x, coords_y, ccc_fijo,
+             generar_solucion_inicial_enfoque_fijo, info_aeds_fijo);
   }
   else if (strcmp(enfoque, "flexible") == 0)
   {
     resolver(n_eventos, radio, presupuesto, n_restart, n_aeds_iniciales, aeds_iniciales,
-             coords_x, coords_y, ccc_flexible, generar_si_flexible, info_aeds_flexible);
+             coords_x, coords_y, ccc_flexible,
+             generar_solucion_inicial_enfoque_flexible, info_aeds_flexible);
   }
   else
   {

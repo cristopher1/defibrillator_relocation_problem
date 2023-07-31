@@ -85,11 +85,11 @@ std::vector<std::set<coordenadas>> obtener_coberturas(const posicion coords_x,
                                             const unsigned int radio);
 
 /*Generador de soluciones iniciales para problemas fijos*/
-posicion generar_si_fijo(const int largo, unsigned long presupuesto,
+posicion generar_solucion_inicial_enfoque_fijo(const int largo, unsigned long presupuesto,
                          unsigned int n_aeds);
 
 /*Generador de soluciones iniciales para problemas flexibles*/
-posicion generar_si_flexible(const int largo, unsigned long presupuesto,
+posicion generar_solucion_inicial_enfoque_flexible(const int largo, unsigned long presupuesto,
                              unsigned int n_aeds);
 
 /*Permite calcular la cobertura total de los eventos OHCA cubiertos por los AEDs*/
