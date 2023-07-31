@@ -24,6 +24,7 @@ enum class Parametro
 
 typedef std::pair<long, long> coordenadas;
 typedef std::vector<unsigned long> posicion;
+
 typedef void (*enfoque)(const int n_eventos, const int radio, const float presupuesto,
                         const int n_restart, std::vector<std::set<coordenadas>> coberturas);
 typedef float (*costo)(const posicion aeds_iniciales, const posicion solucion_candidata);
@@ -65,12 +66,14 @@ public:
   unsigned long getCobertura();
 };
 
-int redirigir_descriptor(const int descriptor, const char *nombre_archivo, const int modo);
+int redirigir_descriptor(const int descriptor, const char * const nombre_archivo, const int modo);
 
 void restaurar_descriptor(const int descriptor_copiado, const int descriptor_modificado);
 
 /*Carga las coordenadas y los aeds existentes de un archivo de texto.*/
-std::tuple<float, unsigned int, unsigned int, unsigned int, const char *, posicion, posicion, posicion> cargar_datos(const char *nombre_archivo);
+std::tuple<float, unsigned int, unsigned int, unsigned int, const char *,
+           posicion, posicion, posicion>
+cargar_datos(const char *nombre_archivo);
 
 /*Establece la semilla para replicar el experimento.*/
 void establecer_semilla(long semilla);
@@ -81,61 +84,57 @@ void establecer_semilla(long semilla);
  * posición del vector).
  */
 std::vector<std::set<coordenadas>> obtener_coberturas(const posicion coords_x,
-                                            const posicion coords_y,
-                                            const unsigned int radio);
+                                                      const posicion coords_y,
+                                                      const unsigned int radio);
 
 /*Generador de soluciones iniciales para problemas fijos*/
 posicion generar_solucion_inicial_enfoque_fijo(const int largo, unsigned long presupuesto,
-                         unsigned int n_aeds);
+                                               unsigned int n_aeds);
 
 /*Generador de soluciones iniciales para problemas flexibles*/
 posicion generar_solucion_inicial_enfoque_flexible(const int largo, unsigned long presupuesto,
-                             unsigned int n_aeds);
+                                                   unsigned int n_aeds);
 
 /*Permite calcular la cobertura total de los eventos OHCA cubiertos por los AEDs*/
-std::pair<int, std::set<coordenadas>> obtener_cobertura_total_inicial(std::vector<std::set<coordenadas>> coberturas,
+std::pair<int, std::set<coordenadas>> cobertura_total_inicial(std::vector<std::set<coordenadas>> coberturas,
                                     posicion solucion_candidata);
 
 /*Permite calcular la cobertura total de las soluciones candidatas*/
-std::pair<int, std::set<coordenadas>> cobertura_total(const std::vector<std::set<coordenadas>> coberturas,
-                            const std::set<coordenadas> eventos_cubiertos,
-                            const posicion solucion_candidata,
-                            const unsigned int posicion, const bool agregado);
+std::pair<int, std::set<coordenadas>> obtener_cobertura_total(const std::vector<std::set<coordenadas>> coberturas,
+                                                      const std::set<coordenadas> eventos_cubiertos,
+                                                      const posicion solucion_candidata,
+                                                      const unsigned int posicion,
+                                                      const bool movimiento_realizado);
 
-/*Calcular costo cobertura fijo*/
-float ccc_fijo(const posicion aeds_iniciales, const posicion solucion_candidata);
+float calcular_costo_cobertura_enfoque_fijo(const posicion aeds_iniciales, const posicion solucion_candidata);
 
-/*Calcular costo cobertura flexible*/
-
-float ccc_flexible(const posicion aeds_iniciales, const posicion solucion_candidata);
+float calcular_costo_cobertura_enfoque_flexible(const posicion aeds_iniciales, const posicion solucion_candidata);
 
 /*Función de evaluación.*/
 ResultadoFEv funcion_evaluacion(const std::vector<std::set<coordenadas>> coberturas,
-                  const posicion aeds_iniciales,
-                  const posicion solucion_candidata,
-                  const std::set<coordenadas> eventos_cubiertos,
-                  const unsigned int posicion_aed, const bool movimiento_realizado,
-                  costo const calcular_costo, const unsigned long presupuesto);
+                                const posicion aeds_iniciales,
+                                const posicion solucion_candidata,
+                                const std::set<coordenadas> eventos_cubiertos,
+                                const unsigned int posicion_aed, const bool movimiento_realizado,
+                                costo const calcular_costo, const unsigned long presupuesto);
 
 /*Hill climbing con mejor mejora.*/
-ResultadoHCMM hc_mm(std::vector<std::set<coordenadas>> coberturas, posicion aeds_iniciales,
+ResultadoHCMM hill_climbing_mejor_mejora(std::vector<std::set<coordenadas>> coberturas, posicion aeds_iniciales,
                     posicion solucion_inicial, const int radio,
-                    const float presupuesto, costo calcular_costo);
+                    const float presupuesto, costo const calcular_costo);
 
-/*Imprime la información asociada a problemas de tipo fijo*/
-void info_aeds_fijo(const posicion aeds_iniciales, const posicion mejor_solucion,
+void imprimir_resultado_enfoque_fijo(const posicion aeds_iniciales, const posicion mejor_solucion,
                     const posicion coords_x, const posicion coords_y);
 
-/*Imprime la información asociada a problemas de tipo flexible*/
-void info_aeds_flexible(const posicion aeds_iniciales, const posicion mejor_solucion,
+void imprimir_resultado_enfoque_flexible(const posicion aeds_iniciales, const posicion mejor_solucion,
                         const posicion coords_x, const posicion coords_y);
 
 /*Función utilizada para resolver el problema con los diferentes enfoques.*/
 void resolver(const int n_eventos, const int radio, const float presupuesto,
               const int n_restart, const unsigned int n_aeds_iniciales,
               const posicion aeds_iniciales, const posicion coords_x,
-              const posicion coords_y, costo const cost,
-              generar_solucion const solucion,
-              imprimir const info);
+              const posicion coords_y, costo const calcular_costo,
+              generar_solucion const obtener_solucion_inicial,
+              imprimir const imprimir_resultado);
 
 #endif

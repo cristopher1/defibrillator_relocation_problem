@@ -72,7 +72,7 @@ unsigned long ResultadoHCMM::getCobertura()
  * manera usar cin para leer el contenido del archivo, en lugar de hacer las operaciones
  * que se realizan al utilizar open o fopen.
  */
-int redirigir_descriptor(const int descriptor, const char *nombre_archivo, const int modo)
+int redirigir_descriptor(const int descriptor, const char *const nombre_archivo, const int modo)
 {
   int descriptor_copiado, descriptor_nuevo;
 
@@ -118,7 +118,7 @@ cargar_datos(const char *nombre_archivo)
   descriptor_original = redirigir_descriptor(STDIN_FILENO, nombre_archivo, O_RDONLY);
 
   std::cin >> n_eventos >> presupuesto >> radio;
-  for (unsigned int c = 0; c < n_eventos; c++)
+  for (unsigned int c = 0; c < n_eventos; ++c)
   {
     std::cin >> coord_x >> coord_y >> aed_inicial;
     coords_x.push_back(coord_x), coords_y.push_back(coord_y), aeds_iniciales.push_back(aed_inicial);
@@ -151,7 +151,7 @@ posicion generar_solucion_inicial_enfoque_fijo(const int largo,
    * la cantidad de presupuesto con el cual se cuenta.
    */
   presupuesto = presupuesto * (1 + ((rand() % 4) / 10));
-  for (auto iter = solucion.begin(); iter != solucion.end() && presupuesto > 0; iter++)
+  for (auto aed = solucion.begin(), ultimo_aed = solucion.end(); aed != ultimo_aed && presupuesto > 0; ++aed)
   {
     /*
      * Se genera un 0 o 1 de forma aleatoria, que indica si existe o no un aed y se agrega
@@ -160,8 +160,8 @@ posicion generar_solucion_inicial_enfoque_fijo(const int largo,
     unsigned long hay_aed = ((rand() % 101) / 100) >= 0.9;
     if (hay_aed)
     {
-      *iter = 1;
-      presupuesto--;
+      *aed = 1;
+      --presupuesto;
     }
   }
   return solucion;
@@ -177,7 +177,7 @@ posicion generar_solucion_inicial_enfoque_flexible(const int largo,
    * en las ubicaciones de OHCA dadas. Debido a que existe una cantidad inicial de AEDs que se
    * deben colocar en la solución, se decide aumentar la probabilidad de generar 1's.
    */
-  for (auto iter = solucion.begin(); iter != solucion.end() && n_aeds > 0; iter++)
+  for (auto aed = solucion.begin(), ultimo_aed = solucion.end(); aed != ultimo_aed && n_aeds > 0; ++aed)
   {
     /*
      * Se genera un 0 o 1 de forma aleatoria, que indica si existe o no un aed y se agrega
@@ -186,8 +186,8 @@ posicion generar_solucion_inicial_enfoque_flexible(const int largo,
     unsigned long hay_aed = ((rand() % 101) / 100) >= 0.7;
     if (hay_aed)
     {
-      *iter = 1;
-      n_aeds--;
+      *aed = 1;
+      --n_aeds;
     }
   }
   return solucion;
@@ -198,7 +198,10 @@ std::pair<int, std::set<coordenadas>> obtener_cobertura_total_inicial(std::vecto
                                                                       posicion solucion_candidata)
 {
   std::set<coordenadas> eventos_cubiertos;
+<<<<<<< HEAD
 
+=======
+>>>>>>> refactoring
   auto cobertura = coberturas.begin(), ultima_cobertura = coberturas.end();
   auto aed = solucion_candidata.begin(), ultimo_aed = solucion_candidata.end();
 
@@ -217,14 +220,16 @@ std::pair<int, std::set<coordenadas>> obtener_cobertura_total_inicial(std::vecto
   return std::make_pair(eventos_cubiertos.size(), eventos_cubiertos);
 }
 
-std::pair<int, std::set<coordenadas>> cobertura_total(const std::vector<std::set<coordenadas>> coberturas,
-                                                      const std::set<coordenadas> eventos_cubiertos,
-                                                      const posicion solucion_candidata,
-                                                      const unsigned int posicion_aed,
-                                                      const bool movimiento_realizado)
+std::pair<int, std::set<coordenadas>> obtener_cobertura_total(const std::vector<std::set<coordenadas>> coberturas,
+                                                              const std::set<coordenadas> eventos_cubiertos,
+                                                              const posicion solucion_candidata,
+                                                              const unsigned int posicion_aed,
+                                                              const bool movimiento_realizado)
 {
   const bool aed_agregado = movimiento_realizado;
   std::set<coordenadas> nuevos_eventos_cubiertos = eventos_cubiertos;
+  std::set<coordenadas> cobertura_aed = coberturas[posicion_aed];
+
   /*
    * Debido a que el movimiento consiste en quitar o agregar un solo AED a la vez, entonces
    * cuando se agrega un AED en una posición, se agrega a la cobertura de OHCA
@@ -234,37 +239,43 @@ std::pair<int, std::set<coordenadas>> cobertura_total(const std::vector<std::set
 
   if (aed_agregado)
   {
-    nuevos_eventos_cubiertos.insert(coberturas[posicion_aed].begin(), ++coberturas[posicion_aed].end());
+    nuevos_eventos_cubiertos.insert(cobertura_aed.begin(), ++cobertura_aed.end());
     return std::make_pair(nuevos_eventos_cubiertos.size(), nuevos_eventos_cubiertos);
   }
 
-  for (auto evento = coberturas[posicion_aed].begin(); evento != coberturas[posicion_aed].end(); evento++)
+  for (auto evento = cobertura_aed.begin(), ultimo_evento = cobertura_aed.end(); evento != ultimo_evento; ++evento)
   {
     nuevos_eventos_cubiertos.erase(*evento);
   }
   return std::make_pair(nuevos_eventos_cubiertos.size(), nuevos_eventos_cubiertos);
 }
 
-float ccc_fijo(const posicion aeds_iniciales, const posicion solucion_candidata)
+float calcular_costo_cobertura_enfoque_fijo(const posicion aeds_iniciales, const posicion solucion_candidata)
 {
   return accumulate(solucion_candidata.begin(), solucion_candidata.end(), 0);
 }
 
-float ccc_flexible(const posicion aeds_iniciales, const posicion solucion_candidata)
+float calcular_costo_cobertura_enfoque_flexible(const posicion aeds_iniciales, const posicion solucion_candidata)
 {
-  long aeds_movidos = 0;
-  long n_aeds_iniciales = accumulate(aeds_iniciales.begin(), aeds_iniciales.end(), 0);
-  long n_aeds_sol_candidata = accumulate(solucion_candidata.begin(), solucion_candidata.end(), 0);
-  long aeds_agregados = n_aeds_sol_candidata - n_aeds_iniciales;
+  long numero_aeds_iniciales, numero_aeds_solucion_candidata, aeds_agregados, aeds_movidos;
+
+  numero_aeds_iniciales = accumulate(aeds_iniciales.begin(), aeds_iniciales.end(), 0);
+  numero_aeds_solucion_candidata = accumulate(solucion_candidata.begin(), solucion_candidata.end(), 0);
+  aeds_agregados = numero_aeds_solucion_candidata - numero_aeds_iniciales;
   aeds_agregados = aeds_agregados > 0 ? aeds_agregados : 0;
-  for (auto iter_ini = aeds_iniciales.begin(), iter_sol = solucion_candidata.begin();
-       iter_ini != aeds_iniciales.end() && iter_sol != solucion_candidata.end(); iter_ini++, iter_sol++)
+  aeds_movidos = 0;
+
+  for (auto aed_inicial = aeds_iniciales.begin(), ultimo_aed_inicial = aeds_iniciales.end(),
+            aed_solucion_candidata = solucion_candidata.begin(),
+            ultimo_aed_solucion_candidata = solucion_candidata.end();
+       aed_inicial != ultimo_aed_inicial && aed_solucion_candidata != ultimo_aed_solucion_candidata;
+       ++aed_inicial, ++aed_solucion_candidata)
   {
     /*
      * Si un aed estaba inicialmente en una ubicación pero en la solución candidata no aparece
      * en dicha posición, entonces el aed se ha movido.
      */
-    if ((*iter_ini) == 1 && (*iter_sol) == 0)
+    if ((*aed_inicial) && !(*aed_solucion_candidata))
     {
       aeds_movidos++;
     }
@@ -284,88 +295,117 @@ ResultadoFEv funcion_evaluacion(const std::vector<std::set<coordenadas>> cobertu
   std::set<coordenadas> eventos_cubiertos_actuales;
 
   costo = calcular_costo(aeds_iniciales, solucion_candidata);
-  std::tie(cobertura, eventos_cubiertos_actuales) = cobertura_total(coberturas, eventos_cubiertos,
-                                                                    solucion_candidata, posicion_aed,
-                                                                    movimiento_realizado);
+  std::tie(cobertura, eventos_cubiertos_actuales) = obtener_cobertura_total(coberturas, eventos_cubiertos,
+                                                                            solucion_candidata, posicion_aed,
+                                                                            movimiento_realizado);
   return ResultadoFEv(costo, cobertura, eventos_cubiertos_actuales);
 }
 
-std::vector<std::set<coordenadas>> obtener_coberturas(const std::vector<unsigned long> coords_x,
-                                                      const std::vector<unsigned long> coords_y,
+/*
+ * Genera un vector, donde cada posición representa una determinada ubicación de un
+ * evento OHCA y en cada una de esas posiciones se almacena el conjunto de todas aquellas
+ * ubicaciones de eventos OHCAs que se encuentran a una distancia radio de él. De esta
+ * manera, es posible almacenar la cobertura de un punto de OHCA y realizando uniones
+ * entre los conjuntos de OHCA de cada posición del vector se puede obtener la cobertura
+ * total de las soluciones entregadas por HC con MM.
+ */
+std::vector<std::set<coordenadas>> obtener_coberturas(const posicion coords_x,
+                                                      const posicion coords_y,
                                                       const unsigned int radio)
 {
   std::vector<std::set<coordenadas>> coberturas;
-  /*
-   * Se genera un vector, donde cada posición representa una determinada ubicación de un
-   * evento OHCA y en cada una de esas posiciones se almacena el conjunto de todas aquellas
-   * ubicaciones de eventos OHCAs que se encuentran a una distancia radio de él. De esta
-   * manera, es posible almacenar la cobertura de un punto de OHCA y realizando uniones
-   * entre los conjuntos de OHCA de cada posición del vector se puede obtener la cobertura
-   * total de las soluciones entregadas por HC con MM.
-   */
-  for (auto iter_x_act = coords_x.begin(), iter_y_act = coords_y.begin();
-       iter_x_act != coords_x.end() && iter_y_act != coords_y.end(); iter_x_act++, iter_y_act++)
+
+  const unsigned long radio_cobertura_aed = static_cast<unsigned long>(radio);
+
+  for (auto coord_x_evento_actual = coords_x.begin(), ultima_coord_x_evento_actual = coords_x.end(),
+            coord_y_evento_actual = coords_y.begin(), ultima_coord_y_evento_actual = coords_y.end();
+       coord_x_evento_actual != ultima_coord_x_evento_actual &&
+       coord_y_evento_actual != ultima_coord_y_evento_actual;
+       ++coord_x_evento_actual, ++coord_y_evento_actual)
   {
 
-    std::set<coordenadas> cobertura;
-    for (auto iter_x_sig = coords_x.begin(), iter_y_sig = coords_y.begin();
-         iter_x_sig != coords_x.end() && iter_y_sig != coords_y.end(); iter_x_sig++, iter_y_sig++)
+    /*
+     * Eventos OHCA dentro del mismo radio de covertura del AED. Si se coloca un AED en este sitio,
+     * puede cubrir todos los eventos OHCA dentro de este conjunto.
+     */
+    std::set<coordenadas> eventos_cubiertos;
+
+    for (auto coord_x_otro_evento = coords_x.begin(), ultima_coord_x_otro_evento = coords_x.end(),
+              coord_y_otro_evento = coords_y.begin(), ultima_coord_y_otro_evento = coords_y.end();
+         coord_x_otro_evento != ultima_coord_x_otro_evento &&
+         coord_y_otro_evento != ultima_coord_y_otro_evento;
+         ++coord_x_otro_evento, ++coord_y_otro_evento)
     {
 
-      unsigned int radio_act = sqrt(pow(*iter_x_act - *iter_x_sig, 2) + pow(*iter_y_act - *iter_y_sig, 2));
-      if (radio_act <= radio)
+      unsigned long distancia_entre_eventos = sqrt(pow(*coord_x_evento_actual - *coord_x_otro_evento, 2) +
+                                                   pow(*coord_y_evento_actual - *coord_y_otro_evento, 2));
+      if (distancia_entre_eventos <= radio_cobertura_aed)
       {
-        cobertura.insert(std::make_pair(*iter_x_sig, *iter_y_sig));
+        eventos_cubiertos.insert(std::make_pair(*coord_x_otro_evento, *coord_y_otro_evento));
       }
     }
-    coberturas.push_back(cobertura);
+    coberturas.push_back(eventos_cubiertos);
   }
   return coberturas;
 }
 
-void info_aeds_fijo(const posicion aeds_iniciales, const posicion mejor_solucion,
-                    const posicion coords_x, const posicion coords_y)
+void imprimir_resultado_enfoque_fijo(const posicion aeds_iniciales, const posicion mejor_solucion,
+                                     const posicion coords_x, const posicion coords_y)
 {
-  long n_aeds_agregados = accumulate(mejor_solucion.begin(), mejor_solucion.end(), 0);
-  std::cout << "Cantidad de AEDs agregados: " << n_aeds_agregados << std::endl;
+  long numero_aeds_agregados = accumulate(mejor_solucion.begin(), mejor_solucion.end(), 0);
+
+  std::cout << "Cantidad de AEDs agregados: " << numero_aeds_agregados << std::endl;
   std::cout << "Posiciones de los AEDs: " << std::endl;
-  for (unsigned int pos = 0; pos < mejor_solucion.size(); pos++)
+
+  for (unsigned int ubicacion = 0; ubicacion < mejor_solucion.size(); ++ubicacion)
   {
-    if (mejor_solucion[pos])
+    // Se revisa si hay un aed en dicha ubicación
+    if (mejor_solucion[ubicacion])
     {
-      std::cout << "coordenada X: " << coords_x[pos] << " coordenada Y: " << coords_y[pos] << std::endl;
+      std::cout << "coordenada X: " << coords_x[ubicacion] << " coordenada Y: " << coords_y[ubicacion] << std::endl;
     }
   }
 }
 
-void info_aeds_flexible(const posicion aeds_iniciales, const posicion mejor_solucion,
-                        const posicion coords_x, const posicion coords_y)
+void imprimir_resultado_enfoque_flexible(const posicion aeds_iniciales, const posicion mejor_solucion,
+                                         const posicion coords_x, const posicion coords_y)
 {
-  long n_aeds_mejor_solucion = accumulate(mejor_solucion.begin(), mejor_solucion.end(), 0);
-  long n_aeds_iniciales = accumulate(aeds_iniciales.begin(), aeds_iniciales.end(), 0);
-  long n_aeds_agregados = n_aeds_mejor_solucion - n_aeds_iniciales;
-  n_aeds_agregados = n_aeds_agregados > 0 ? n_aeds_agregados : 0;
-  long n_aeds_movidos = 0;
-  for (unsigned int pos = 0; pos < aeds_iniciales.size(); pos++)
+  long numero_aeds_mejor_solucion, numero_aeds_iniciales, numero_aeds_agregados, numero_aeds_movidos;
+
+  numero_aeds_mejor_solucion = accumulate(mejor_solucion.begin(), mejor_solucion.end(), 0);
+  numero_aeds_iniciales = accumulate(aeds_iniciales.begin(), aeds_iniciales.end(), 0);
+  numero_aeds_agregados = numero_aeds_mejor_solucion - numero_aeds_iniciales;
+  numero_aeds_agregados = numero_aeds_agregados > 0 ? numero_aeds_agregados : 0;
+  numero_aeds_movidos = 0;
+
+  for (unsigned int ubicacion = 0; ubicacion < aeds_iniciales.size(); ++ubicacion)
   {
-    if (aeds_iniciales[pos] == 1 && mejor_solucion[pos] == 0)
+    /*
+     * Si hay un AED en aeds_iniciales, pero no hay AED en mejor_solucion
+     * entonces ese AED se ha sido movido.
+     */
+    if (aeds_iniciales[ubicacion] && !mejor_solucion[ubicacion])
     {
-      n_aeds_movidos++;
+      ++numero_aeds_movidos;
     }
   }
-  std::cout << "Cantidad de AEDs agregados: " << n_aeds_agregados << std::endl;
-  std::cout << "Cantidad de AEDs movidos: " << n_aeds_movidos << std::endl;
-  for (unsigned int pos = 0; pos < mejor_solucion.size(); pos++)
+
+  std::cout << "Cantidad de AEDs agregados: " << numero_aeds_agregados << std::endl;
+  std::cout << "Cantidad de AEDs movidos: " << numero_aeds_movidos << std::endl;
+
+  for (unsigned int ubicacion = 0; ubicacion < mejor_solucion.size(); ++ubicacion)
   {
-    if (mejor_solucion[pos])
+    if (mejor_solucion[ubicacion])
     {
-      std::cout << "coordenada X: " << coords_x[pos] << " coordenada Y: " << coords_y[pos] << std::endl;
+      std::cout << "coordenada X: " << coords_x[ubicacion] << " coordenada Y: " << coords_y[ubicacion] << std::endl;
     }
   }
 }
 
-ResultadoHCMM hc_mm(std::vector<std::set<coordenadas>> coberturas, posicion aeds_iniciales,
-                    posicion solucion_inicial, const int radio, const float presupuesto, costo calcular_costo)
+ResultadoHCMM hill_climbing_mejor_mejora(std::vector<std::set<coordenadas>> coberturas,
+                                         posicion aeds_iniciales, posicion solucion_inicial,
+                                         const int radio, const float presupuesto,
+                                         costo const calcular_costo)
 {
   /*
    * Variables terminadas en _act sirven para procesar datos de la mejor solución (actual)
@@ -393,7 +433,7 @@ ResultadoHCMM hc_mm(std::vector<std::set<coordenadas>> coberturas, posicion aeds
   {
     /*Al inicio del proceso no hay una mejor solución*/
     hay_mejor_solucion = false;
-    for (unsigned int posicion_aed = 0; posicion_aed < mejor_solucion.size(); posicion_aed++)
+    for (unsigned int posicion_aed = 0; posicion_aed < mejor_solucion.size(); ++posicion_aed)
     {
       /*
        * El movimiento consiste en quitar o agregar un aed en una determinada posición de un
@@ -453,16 +493,18 @@ ResultadoHCMM hc_mm(std::vector<std::set<coordenadas>> coberturas, posicion aeds
 void resolver(const int n_eventos, const int radio, const float presupuesto,
               const int n_restart, const unsigned int n_aeds_iniciales,
               const posicion aeds_iniciales, const posicion coords_x,
-              const posicion coords_y, costo const cost,
-              generar_solucion const solucion, imprimir const info)
+              const posicion coords_y, costo const calcular_costo,
+              generar_solucion const obtener_solucion_inicial,
+              imprimir const imprimir_resultado)
 {
 
   ResultadoHCMM mejor;
   std::vector<std::set<coordenadas>> coberturas = obtener_coberturas(coords_x, coords_y, radio);
-  for (int c = 0; c < n_restart; c++)
+  for (int c = 0; c < n_restart; ++c)
   {
-    posicion solucion_inicial = solucion(n_eventos, presupuesto, n_aeds_iniciales);
-    ResultadoHCMM nuevo = hc_mm(coberturas, aeds_iniciales, solucion_inicial, radio, presupuesto, cost);
+    posicion solucion_inicial = obtener_solucion_inicial(n_eventos, presupuesto, n_aeds_iniciales);
+    ResultadoHCMM nuevo = hill_climbing_mejor_mejora(coberturas, aeds_iniciales, solucion_inicial,
+                                                     radio, presupuesto, calcular_costo);
     unsigned long mejor_cobertura = mejor.getCobertura(), nuevo_cobertura = nuevo.getCobertura();
     float mejor_costo = mejor.getCosto(), nuevo_costo = nuevo.getCosto();
     if ((nuevo_cobertura > mejor_cobertura) || ((nuevo_cobertura == mejor_cobertura) && (nuevo_costo < mejor_costo)))
@@ -473,5 +515,5 @@ void resolver(const int n_eventos, const int radio, const float presupuesto,
   std::cout << "Cobertura: " << mejor.getCobertura() << std::endl;
   std::cout << "Porcentaje de cobertura: " << std::fixed << std::setprecision(2) << (mejor.getCobertura() / (float)n_eventos) * 100 << "%" << std::endl;
   std::cout << "Presupuesto sobrante: " << presupuesto - mejor.getCosto() << std::endl;
-  info(aeds_iniciales, mejor.getResultado(), coords_x, coords_y);
+  imprimir_resultado(aeds_iniciales, mejor.getResultado(), coords_x, coords_y);
 }
