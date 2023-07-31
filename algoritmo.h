@@ -24,6 +24,7 @@ enum class Parametro
 
 typedef std::pair<long, long> coordenadas;
 typedef std::vector<unsigned long> posicion;
+
 typedef void (*enfoque)(const int n_eventos, const int radio, const float presupuesto,
                         const int n_restart, std::vector<std::set<coordenadas>> coberturas);
 typedef float (*costo)(const posicion aeds_iniciales, const posicion solucion_candidata);

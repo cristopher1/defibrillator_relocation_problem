@@ -151,7 +151,7 @@ posicion generar_solucion_inicial_enfoque_fijo(const int largo,
    * la cantidad de presupuesto con el cual se cuenta.
    */
   presupuesto = presupuesto * (1 + ((rand() % 4) / 10));
-  for (auto iter = solucion.begin(); iter != solucion.end() && presupuesto > 0; ++iter)
+  for (auto aed = solucion.begin(), ultimo_aed = solucion.end(); aed != ultimo_aed && presupuesto > 0; ++aed)
   {
     /*
      * Se genera un 0 o 1 de forma aleatoria, que indica si existe o no un aed y se agrega
@@ -160,7 +160,7 @@ posicion generar_solucion_inicial_enfoque_fijo(const int largo,
     unsigned long hay_aed = ((rand() % 101) / 100) >= 0.9;
     if (hay_aed)
     {
-      *iter = 1;
+      *aed = 1;
       presupuesto--;
     }
   }
@@ -177,7 +177,7 @@ posicion generar_solucion_inicial_enfoque_flexible(const int largo,
    * en las ubicaciones de OHCA dadas. Debido a que existe una cantidad inicial de AEDs que se
    * deben colocar en la solución, se decide aumentar la probabilidad de generar 1's.
    */
-  for (auto iter = solucion.begin(); iter != solucion.end() && n_aeds > 0; ++iter)
+  for (auto aed = solucion.begin(), ultimo_aed = solucion.end(); aed != ultimo_aed && n_aeds > 0; ++aed)
   {
     /*
      * Se genera un 0 o 1 de forma aleatoria, que indica si existe o no un aed y se agrega
@@ -186,7 +186,7 @@ posicion generar_solucion_inicial_enfoque_flexible(const int largo,
     unsigned long hay_aed = ((rand() % 101) / 100) >= 0.7;
     if (hay_aed)
     {
-      *iter = 1;
+      *aed = 1;
       n_aeds--;
     }
   }
@@ -197,10 +197,10 @@ std::pair<int, std::set<coordenadas>> cobertura_total_inicial(std::vector<std::s
                                                               posicion solucion_candidata)
 {
   std::set<coordenadas> eventos_cubiertos;
-  auto cobertura = coberturas.begin();
-  auto aed = solucion_candidata.begin();
+  auto cobertura = coberturas.begin(), ultima_cobertura = coberturas.end();
+  auto aed = solucion_candidata.begin(), ultimo_aed = solucion_candidata.end();
 
-  for (; cobertura != coberturas.end() && aed != solucion_candidata.end(); ++cobertura, ++aed)
+  for (; cobertura != ultima_cobertura && aed != ultimo_aed; ++cobertura, ++aed)
   {
     /*
      * Cada vez que un AED se encuentra cubriendo algún evento OHCA, se obtienen todas las posiciones
@@ -236,7 +236,8 @@ std::pair<int, std::set<coordenadas>> cobertura_total(const std::vector<std::set
     return std::make_pair(nuevos_eventos_cubiertos.size(), nuevos_eventos_cubiertos);
   }
 
-  for (auto evento = coberturas[posicion_aed].begin(); evento != coberturas[posicion_aed].end(); ++evento)
+  const std::set<coordenadas> cobertura_aed = coberturas[posicion_aed];
+  for (auto evento = cobertura_aed.begin(), ultimo_evento = cobertura_aed.end(); evento != ultimo_evento; ++evento)
   {
     nuevos_eventos_cubiertos.erase(*evento);
   }
