@@ -193,7 +193,7 @@ posicion generar_solucion_inicial_enfoque_flexible(const int largo,
   return solucion;
 }
 /*Calcula la cobetura total de la solución inicial*/
-std::pair<int, std::set<coordenadas>> cobertura_total_inicial(std::vector<std::set<coordenadas>> coberturas,
+std::pair<int, std::set<coordenadas>> obtener_cobertura_total_inicial(std::vector<std::set<coordenadas>> coberturas,
                                                               posicion solucion_candidata)
 {
   std::set<coordenadas> eventos_cubiertos;
@@ -215,7 +215,7 @@ std::pair<int, std::set<coordenadas>> cobertura_total_inicial(std::vector<std::s
   return std::make_pair(eventos_cubiertos.size(), eventos_cubiertos);
 }
 
-std::pair<int, std::set<coordenadas>> cobertura_total(const std::vector<std::set<coordenadas>> coberturas,
+std::pair<int, std::set<coordenadas>> obtener_cobertura_total(const std::vector<std::set<coordenadas>> coberturas,
                                                       const std::set<coordenadas> eventos_cubiertos,
                                                       const posicion solucion_candidata,
                                                       const unsigned int posicion_aed,
@@ -284,7 +284,7 @@ ResultadoFEv funcion_evaluacion(const std::vector<std::set<coordenadas>> cobertu
   std::set<coordenadas> eventos_cubiertos_actuales;
 
   costo = calcular_costo(aeds_iniciales, solucion_candidata);
-  std::tie(cobertura, eventos_cubiertos_actuales) = cobertura_total(coberturas, eventos_cubiertos,
+  std::tie(cobertura, eventos_cubiertos_actuales) = obtener_cobertura_total(coberturas, eventos_cubiertos,
                                                                     solucion_candidata, posicion_aed,
                                                                     movimiento_realizado);
   return ResultadoFEv(costo, cobertura, eventos_cubiertos_actuales);
@@ -318,17 +318,17 @@ std::vector<std::set<coordenadas>> obtener_coberturas(const posicion coords_x,
     std::set<coordenadas> eventos_cubiertos;
 
     for (auto coord_x_otro_evento = coords_x.begin(), ultima_coord_x_otro_evento = coords_x.end(),
-              coord_y_otro_evento = coords_y.begin(), ultima_coord_y_otro_evento = coord_y.end();
+              coord_y_otro_evento = coords_y.begin(), ultima_coord_y_otro_evento = coords_y.end();
          coord_x_otro_evento != ultima_coord_x_otro_evento &&
          coord_y_otro_evento != ultima_coord_y_otro_evento;
          ++coord_x_otro_evento, ++coord_y_otro_evento)
     {
 
-      unsigned int distacia_entre_eventos = sqrt(pow(*coord_x_evento_actual - *coord_x_otro_evento, 2) +
+      unsigned long distancia_entre_eventos = sqrt(pow(*coord_x_evento_actual - *coord_x_otro_evento, 2) +
                                                  pow(*coord_y_evento_actual - *coord_y_otro_evento, 2));
       if (distancia_entre_eventos <= radio)
       {
-        cobertura.insert(std::make_pair(*coord_x_otro_evento, *coord_y_otro_evento));
+        eventos_cubiertos.insert(std::make_pair(*coord_x_otro_evento, *coord_y_otro_evento));
       }
     }
     coberturas.push_back(eventos_cubiertos);
@@ -398,7 +398,7 @@ ResultadoHCMM hill_climbing_mejor_mejora(std::vector<std::set<coordenadas>> cobe
 
   mejor_costo = calcular_costo(aeds_iniciales, solucion_inicial);
   mejor_costo_actual = mejor_costo;
-  std::tie(mejor_cobertura, mejor_eventos_cubiertos_actual) = cobertura_total_inicial(coberturas, solucion_inicial);
+  std::tie(mejor_cobertura, mejor_eventos_cubiertos_actual) = obtener_cobertura_total_inicial(coberturas, solucion_inicial);
   mejor_cobertura_actual = mejor_cobertura;
   mejor_eventos_cubiertos = mejor_eventos_cubiertos_actual;
   mejor_solucion = solucion_inicial;
