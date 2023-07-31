@@ -197,18 +197,18 @@ std::pair<int, std::set<coordenadas>> cobertura_total_inicial(std::vector<std::s
                                                               posicion solucion_candidata)
 {
   std::set<coordenadas> eventos_cubiertos;
-  auto iter_cob = coberturas.begin();
-  auto iter_sol = solucion_candidata.begin();
-  for (; iter_cob != coberturas.end() && iter_sol != solucion_candidata.end(); iter_cob++, iter_sol++)
+  for (auto cobertura = coberturas.begin(), auto aed = solucion_candidata.begin();
+       cobertura != coberturas.end() && aed != solucion_candidata.end();
+       cobertura++, aed++)
   {
     /*
      * Cada vez que un AED se encuentra cubriendo algún evento OHCA, se obtienen todas las posiciones
      * de eventos OHCA que se encuentran a una distancia radio de él, que a su vez serán posiciones
      * cubiertas por el AED.
      */
-    if (*iter_sol)
+    if (*aed)
     {
-      eventos_cubiertos.insert((*iter_cob).begin(), (*iter_cob).end());
+      eventos_cubiertos.insert((*cobertura).begin(), (*cobertura).end());
     }
   }
   return std::make_pair(eventos_cubiertos.size(), eventos_cubiertos);
