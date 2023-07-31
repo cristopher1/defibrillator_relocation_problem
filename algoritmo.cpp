@@ -367,6 +367,10 @@ void imprimir_resultado_enfoque_flexible(const posicion aeds_iniciales, const po
 
   for (unsigned int ubicacion = 0; ubicacion < aeds_iniciales.size(); ++ubicacion)
   {
+    /*
+     * Si hay un AED ( == 1) en aeds_iniciales, pero no hay AED ( == 0) en mejor_solucion
+     * entonces ese AED se ha sido movido.
+    */
     if (aeds_iniciales[ubicacion] == 1 && mejor_solucion[ubicacion] == 0)
     {
       numero_aeds_movidos++;
