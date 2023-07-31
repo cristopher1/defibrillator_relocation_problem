@@ -310,6 +310,8 @@ std::vector<std::set<coordenadas>> obtener_coberturas(const posicion coords_x,
 {
   std::vector<std::set<coordenadas>> coberturas;
 
+  const unsigned long radio_cobertura_aed = static_cast<unsigned long>(radio);
+
   for (auto coord_x_evento_actual = coords_x.begin(), ultima_coord_x_evento_actual = coords_x.end(),
             coord_y_evento_actual = coords_y.begin(), ultima_coord_y_evento_actual = coords_y.end();
        coord_x_evento_actual != ultima_coord_x_evento_actual &&
@@ -318,7 +320,7 @@ std::vector<std::set<coordenadas>> obtener_coberturas(const posicion coords_x,
   {
 
     /*
-     * Eventos OHCA dentro del mismo radio de covertura. Si se coloca un AED en este sitio,
+     * Eventos OHCA dentro del mismo radio de covertura del AED. Si se coloca un AED en este sitio,
      * puede cubrir todos los eventos OHCA dentro de este conjunto.
      */
     std::set<coordenadas> eventos_cubiertos;
@@ -332,7 +334,7 @@ std::vector<std::set<coordenadas>> obtener_coberturas(const posicion coords_x,
 
       unsigned long distancia_entre_eventos = sqrt(pow(*coord_x_evento_actual - *coord_x_otro_evento, 2) +
                                                    pow(*coord_y_evento_actual - *coord_y_otro_evento, 2));
-      if (distancia_entre_eventos <= radio)
+      if (distancia_entre_eventos <= radio_cobertura_aed)
       {
         eventos_cubiertos.insert(std::make_pair(*coord_x_otro_evento, *coord_y_otro_evento));
       }
