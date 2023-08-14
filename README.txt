@@ -1,3 +1,5 @@
+---------------------- FALTA ACTUALIZAR EL INFORME ----------------------
+
 Para ejecutar el presente programa, utilice ./pruebas para ejecutar el script bash que se encargará de ejecutar
 las 168 pruebas utilizadas en el informe.
 
